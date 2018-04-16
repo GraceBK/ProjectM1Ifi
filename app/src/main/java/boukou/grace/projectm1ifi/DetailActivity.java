@@ -45,12 +45,20 @@ public class DetailActivity extends AppCompatActivity {
     private RecyclerView mySmsRecycler;
     private MySmsAdapter mySmsAdapter;
 
-    private List<MySms> smsList = new ArrayList<>();
+    private List<MySms> smsList;
 
     String name;
     String phone;
+    String sms_clair;
+    String sms_chiffre;
+    String sender = "sender";
 
     TextView sms;
+    TextView current_time;
+
+    int cle = 2;
+
+    SmsSQLiteOpenHelper sqLiteOpenHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,19 +69,18 @@ public class DetailActivity extends AppCompatActivity {
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
+        name = getIntent().getStringExtra("USERNAME");
+        phone = getIntent().getStringExtra("PHONE");
+
+        getSupportActionBar().setTitle(name);
+
+        sms = findViewById(R.id.edit_txt_send);
+        //current_time = findViewById(R.id.e);
+
         // TODO : DB
-        SmsSQLiteOpenHelper sqLiteOpenHelper = new SmsSQLiteOpenHelper(this);
+        sqLiteOpenHelper = new SmsSQLiteOpenHelper(this);
 
-        MySms mms = new MySms("0987654321", "COUCOU");
-
-        MySms mms2 = new MySms("0650231529", "COUCOUhjvjiguyb  khk");
-
-
-        sqLiteOpenHelper.addSMS(mms);
-        sqLiteOpenHelper.addSMS(mms2);
-        sqLiteOpenHelper.getAllSMS();
-        sqLiteOpenHelper.getSmsByPhoneNumber("0650231529");
-        prepareSMS();
+        smsList = sqLiteOpenHelper.getSmsByPhoneNumber(phone);
 
         mySmsRecycler = findViewById(R.id.container_sms);
         mySmsRecycler.setLayoutManager(new LinearLayoutManager(this));
@@ -144,13 +151,6 @@ public class DetailActivity extends AppCompatActivity {
         registerReceiver(sendBroadcastReceiver, new IntentFilter(SENT));
         registerReceiver(deliveredBroadcastReceiver, new IntentFilter(DELIVERED));
 
-        name = getIntent().getStringExtra("USERNAME");
-        phone = getIntent().getStringExtra("PHONE");
-
-        getSupportActionBar().setTitle(name);
-
-        sms = findViewById(R.id.edit_txt_send);
-
         FloatingActionButton fab = findViewById(R.id.fab_send);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -158,23 +158,16 @@ public class DetailActivity extends AppCompatActivity {
                 Log.e("rrrr", sms.getText().toString() + " " + phone);
                 if (!sms.getText().toString().isEmpty()) {
                     // TODO add requestSmsPermission() dans un try
-                    sendSMS(sms.getText().toString());
+                    sms_clair = sms.getText().toString();
+                    sms_chiffre = Cesar.crypter(cle, sms_clair);
+                    sendSMS(sms_chiffre);
+                    // DONE Action envoye
+                    // Deplacer cette fonction
+                    sqLiteOpenHelper.addSMS(new MySms(phone, sms_clair, ""+cle, sender));
                     sms.setText("");
                 }
             }
         });
-    }
-
-
-    // TODO : prepare la list de sms
-    private void prepareSMS() {
-        /*smsList.add(new MySms(new MyContact(name, "0678978"), "saluthihh j h b buu jj h i saluthihh j h b buu jj h i saluthihh j h b buu jj h i saluthihh j h b buu jj h i saluthihh j h b buu jj h i saluthihh j h b buu jj h i saluthihh j h b buu jj h i saluthihh j h b buu jj h i saluthihh j h b buu jj h i "));
-        smsList.add(new MySms(new MyContact(name, phone), "saluthihh j h b buu jj h i saluthihh j h b buu jj h i saluthihh j h b buu jj h i saluthihh j h b buu jj h i saluthihh j h b buu jj h i saluthihh j h b buu jj h i saluthihh j h b buu jj h i saluthihh j h b buu jj h i saluthihh j h b buu jj h i "));
-        smsList.add(new MySms(new MyContact(name, "0678978"), "saluthihh j h b buu jj h i saluthihh j h b buu jj h i saluthihh j h b buu jj h i saluthihh j h b buu jj h i saluthihh j h b buu jj h i saluthihh j h b buu jj h i saluthihh j h b buu jj h i saluthihh j h b buu jj h i saluthihh j h b buu jj h i "));
-        smsList.add(new MySms(new MyContact(name, phone), "saluthihh j h b buu jj h i saluthihh j h b buu jj h i saluthihh j h b buu jj h i saluthihh j h b buu jj h i saluthihh j h b buu jj h i saluthihh j h b buu jj h i saluthihh j h b buu jj h i saluthihh j h b buu jj h i saluthihh j h b buu jj h i "));
-        smsList.add(new MySms(new MyContact(name, phone), "saluthihh j h b buu jj h i saluthihh j h b buu jj h i saluthihh j h b buu jj h i saluthihh j h b buu jj h i saluthihh j h b buu jj h i saluthihh j h b buu jj h i saluthihh j h b buu jj h i saluthihh j h b buu jj h i saluthihh j h b buu jj h i "));
-        smsList.add(new MySms(new MyContact(name, "0678978"), "saluthihh j h b buu jj h i saluthihh j h b buu jj h i saluthihh j h b buu jj h i saluthihh j h b buu jj h i saluthihh j h b buu jj h i saluthihh j h b buu jj h i saluthihh j h b buu jj h i saluthihh j h b buu jj h i saluthihh j h b buu jj h i "));
-        smsList.add(new MySms(new MyContact(name, phone), "saluthihh j h b buu jj h i saluthihh j h b buu jj h i saluthihh j h b buu jj h i saluthihh j h b buu jj h i saluthihh j h b buu jj h i saluthihh j h b buu jj h i saluthihh j h b buu jj h i saluthihh j h b buu jj h i saluthihh j h b buu jj h i "));*/
     }
 
 
@@ -226,7 +219,7 @@ public class DetailActivity extends AppCompatActivity {
             }, new IntentFilter(DELIVERED));
 */
             SmsManager smsManager = SmsManager.getDefault();
-            smsManager.sendTextMessage(phone, null, "MY_APP " + Cesar.crypter(2, msg), sentPendingIntent, deliveredPendingIntent);
+            smsManager.sendTextMessage(phone, null, "MY_APP " + Cesar.crypter(cle, msg), sentPendingIntent, deliveredPendingIntent);
             // Toast.makeText(getApplicationContext(), "SMS envoye.", Toast.LENGTH_LONG).show();
         } catch (Exception e) {
             // Toast.makeText(getApplicationContext(), "Envoie faild. Verifier les permissions.", Toast.LENGTH_LONG).show();
@@ -264,4 +257,5 @@ public class DetailActivity extends AppCompatActivity {
         //unregisterReceiver(deliveredBroadcastReceiver);
         super.onStop();
     }
+
 }

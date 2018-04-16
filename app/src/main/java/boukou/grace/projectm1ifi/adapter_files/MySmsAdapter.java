@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.util.Calendar;
 import java.util.List;
 import java.util.Objects;
 
@@ -32,7 +33,9 @@ public class MySmsAdapter extends RecyclerView.Adapter {
     @Override
     public int getItemViewType(int position) {
         MySms sms = mySmsList.get(position);
-        if (Objects.equals(sms.getSender().getPhone_number(), "0678978")) {
+        //if (Objects.equals(sms.getSender().getPhone_number(), "0650231529")) {
+        //if (Objects.equals(sms.get_address(), "0650231529")) {
+        if (Objects.equals(sms.get_sender(), "sender")) {
             return VIEW_MESSAGE_SENT;
         } else {
             return VIEW_MESSAGE_RECEIVED;

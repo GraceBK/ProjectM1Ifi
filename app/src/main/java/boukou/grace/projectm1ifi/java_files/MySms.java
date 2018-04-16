@@ -11,20 +11,16 @@ public class MySms {
     private String _readState;  // "0" pour SMS pas lu et "1" pour SMS lu
     private String _time;
     private String _folderName;
-
-
-    private MyContact sender;
+    private String _sender;   // "sender" pour c'est moi l'expediteur
+    private String _key;   // la cle de cryptage
 
     public MySms() {}
 
-    public MySms(MyContact sender, String msg) {
-        this.sender = sender;
-        this._msg = msg;
-    }
-
-    public MySms(String phone, String msg) {
+    public MySms(String phone, String msg, String key, String sender) {
         this._address = phone;
         this._msg = msg;
+        this._key = key;
+        this._sender = sender;
     }
 
 
@@ -81,11 +77,19 @@ public class MySms {
         this._folderName = _folderName;
     }
 
-    public MyContact getSender() {
-        return sender;
+    public String get_sender() {
+        return _sender;
     }
 
-    public void setSender(MyContact sender) {
-        this.sender = sender;
+    public void set_sender(String _sender) {
+        this._sender = _sender;
+    }
+
+    public String get_key() {
+        return _key;
+    }
+
+    public void set_key(String _key) {
+        this._key = _key;
     }
 }

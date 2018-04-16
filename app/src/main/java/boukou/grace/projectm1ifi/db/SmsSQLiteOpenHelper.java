@@ -27,14 +27,15 @@ public class SmsSQLiteOpenHelper extends SQLiteOpenHelper {
     private static final String TABLE_SMS = "my_sms";
     private static final String COLUMN_ID = "_id";
     private static final String COLUMN_CONTACT_ID = "contact_id";
-    private static final String COLUMN_DATE = "date";
+//    private static final String COLUMN_DATE = "date";
     private static final String COLUMN_DATE_SENT = "date_sent";
     private static final String COLUMN_BODY_ENCRYPTED = "body_encrypted";
     private static final String COLUMN_BODY_DECRYPTED = "body_decrypted";
     private static final String COLUMN_KEY = "_key";
+    private static final String COLUMN_SENDER = "sender";
 
     private static final String[] COLOMNS = {COLUMN_ID, COLUMN_CONTACT_ID,
-            COLUMN_DATE, COLUMN_DATE_SENT, COLUMN_BODY_ENCRYPTED, COLUMN_BODY_DECRYPTED, COLUMN_KEY};
+            /*COLUMN_DATE,*/ COLUMN_DATE_SENT, COLUMN_BODY_ENCRYPTED, COLUMN_BODY_DECRYPTED, COLUMN_KEY, COLUMN_SENDER};
 
     public SmsSQLiteOpenHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -46,11 +47,11 @@ public class SmsSQLiteOpenHelper extends SQLiteOpenHelper {
         String CREATE_SMS_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLE_SMS + " (" +
                 "" + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "" + COLUMN_CONTACT_ID + " TEXT," +
-                "" + COLUMN_DATE + " TEXT," +
                 "" + COLUMN_DATE_SENT + " TEXT," +
                 "" + COLUMN_BODY_ENCRYPTED + " TEXT," +
                 "" + COLUMN_BODY_DECRYPTED + " TEXT," +
-                "" + COLUMN_KEY + " TEXT)";
+                "" + COLUMN_KEY + " TEXT," +
+                "" + COLUMN_SENDER + " TEXT)";
         // Creation de la table SMS
         db.execSQL(CREATE_SMS_TABLE);
     }
@@ -61,6 +62,18 @@ public class SmsSQLiteOpenHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_SMS);
         // creer une nouvelle table SMS
         this.onCreate(db);
+    }
+
+    // TODO pointeur vers le sms
+    private MySms cursorToSms(Cursor cursor) {
+        MySms mySms = new MySms();
+        mySms.set_id(cursor.getInt(0));// ID
+        mySms.set_address(cursor.getString(1));// CONTACT_ID
+        mySms.set_time(cursor.getString(2));// DATE_SENT
+        mySms.set_msg(cursor.getString(3));// BODY_ENCRYPTED message crypte
+        mySms.set_key(cursor.getString(5));// KEY
+        mySms.set_sender(cursor.getString(6));// SENDER
+        return mySms;
     }
 
     /*
@@ -74,11 +87,12 @@ public class SmsSQLiteOpenHelper extends SQLiteOpenHelper {
         // 2. creation d'un ContentValues avec ajout de la cle "column"/value
         ContentValues values = new ContentValues();
         values.put(COLUMN_CONTACT_ID, sms.get_address());
-        values.put(COLUMN_DATE, sms.get_time());
-        values.put(COLUMN_DATE_SENT, "");
+//        values.put(COLUMN_DATE, "");
+        values.put(COLUMN_DATE_SENT, sms.get_time());
         values.put(COLUMN_BODY_ENCRYPTED, sms.get_msg());
         values.put(COLUMN_BODY_DECRYPTED, "");
-        values.put(COLUMN_KEY, "");
+        values.put(COLUMN_KEY, sms.get_key());
+        values.put(COLUMN_SENDER, sms.get_sender());
         // 3. insert
         db.insert(TABLE_SMS, null, values);    // key/value -> keys = noms de column/ values = nom des values
         // 4. close
@@ -100,12 +114,10 @@ public class SmsSQLiteOpenHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         // 2. creation d'un ContentValues avec ajout de la cle "column"/value
         ContentValues values = new ContentValues();
-        values.put(COLUMN_CONTACT_ID, sms.get_address());
-        values.put(COLUMN_DATE, sms.get_time());
-        values.put(COLUMN_DATE_SENT, "");
+//        values.put(COLUMN_DATE, "");
+        values.put(COLUMN_DATE_SENT, sms.get_time());
         values.put(COLUMN_BODY_ENCRYPTED, sms.get_msg());
         values.put(COLUMN_BODY_DECRYPTED, "");
-        values.put(COLUMN_KEY, "");
         // 3. mise a jour ligne
         db.update(TABLE_SMS, values, COLUMN_ID + " = ?", new String[]{String.valueOf(sms.get_id())});    // key/value -> keys = noms de column/ values = nom des values
         // 4. close
@@ -134,7 +146,6 @@ public class SmsSQLiteOpenHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         // 2. requete
         // SELECT * FROM SMS WHERE ID = id;
-        // FIXME : Bug
         Cursor cursor = db.query(TABLE_SMS, COLOMNS, COLUMN_CONTACT_ID + " LIKE \"" + phone_sender + "\"",
                 null, null, null, null);
         // 3.
@@ -177,15 +188,5 @@ public class SmsSQLiteOpenHelper extends SQLiteOpenHelper {
         return mySms;
     }
 
-    // TODO pointeur vers le sms
-    private MySms cursorToSms(Cursor cursor) {
-        MySms mySms = new MySms();
-        mySms.set_id(cursor.getInt(0));
-        mySms.set_address(cursor.getString(1));
-        // TODO date accuse reception
-        mySms.set_time(cursor.getString(3));
-        mySms.set_msg(cursor.getString(4));// message crypte
-        // TODO la cle de crypto
-        return mySms;
-    }
+
 }
