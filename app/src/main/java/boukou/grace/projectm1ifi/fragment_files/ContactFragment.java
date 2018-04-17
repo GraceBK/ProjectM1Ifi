@@ -14,13 +14,18 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TreeMap;
 
 import boukou.grace.projectm1ifi.R;
 import boukou.grace.projectm1ifi.adapter_files.MyContactAdapter;
@@ -95,17 +100,40 @@ public class ContactFragment extends Fragment {
     private List<MyContact> getMyContacts() {
         Set<MyContact> contactSet = new HashSet<>();
 
+        Map<String, String> map = new LinkedHashMap<>();
+
         @SuppressLint("Recycle") Cursor cursor = Objects.requireNonNull(getContext()).getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
                 null, null, null, ContactsContract.Contacts.DISPLAY_NAME);
         Objects.requireNonNull(cursor).moveToFirst();
 
         while (cursor.moveToNext()) {
+            /*
             contactSet.add(new MyContact(cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)),
                     cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))));
+             */
+            map.put(cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)),
+                    cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)));
         }
+
+        Set<Map.Entry<String, String>> setMap = map.entrySet();
+        for (Map.Entry<String, String> entry : setMap) {
+            Log.e("____", entry.getKey() + " -- " + entry.getValue());
+
+            contactSet.add(new MyContact(entry.getKey(), entry.getValue()));
+        }
+
         Log.e("NB_CONTACT", ""+contactSet.size());
 
-        return new ArrayList<>(contactSet);
+        List<MyContact> listContact = new ArrayList<>(contactSet);
+
+        Collections.sort(listContact, new Comparator<MyContact>() {
+            @Override
+            public int compare(MyContact o1, MyContact o2) {
+                return o1.toString().compareTo(o2.toString());
+            }
+        });
+
+        return listContact;
     }
 
 
