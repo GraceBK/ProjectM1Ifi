@@ -1,15 +1,26 @@
 package boukou.grace.projectm1ifi.fragment_files;
 
+import android.annotation.SuppressLint;
+import android.database.Cursor;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 import boukou.grace.projectm1ifi.R;
 import boukou.grace.projectm1ifi.adapter_files.MyContactAdapter;
@@ -65,7 +76,6 @@ public class ContactFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        prepareContacts();
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_contact, container, false);
 
@@ -74,7 +84,7 @@ public class ContactFragment extends Fragment {
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this.getActivity());
         recyclerView.setLayoutManager(layoutManager);
 
-        MyContactAdapter adapter = new MyContactAdapter(myContacts);
+        MyContactAdapter adapter = new MyContactAdapter(getMyContacts());
         recyclerView.setAdapter(adapter);
 
         //TextView textView = view.findViewById(R.id.nb_contact);
@@ -82,22 +92,67 @@ public class ContactFragment extends Fragment {
         return view;
     }
 
-    private void prepareContacts() {
-        myContacts.add(new MyContact("Grace BK", "0650231529"));
-        myContacts.add(new MyContact("Momo KMS", "+33753144701"));
-        myContacts.add(new MyContact("Cédric", "+33680728051"));
+    private List<MyContact> getMyContacts() {
+        Set<MyContact> contactSet = new HashSet<>();
 
-        myContacts.add(new MyContact("Julien", "+33660772138"));
-        /*myContacts.add(new MyContact("Coucou", "685282738"));
-        myContacts.add(new MyContact("LILI", "64769527"));
+        @SuppressLint("Recycle") Cursor cursor = Objects.requireNonNull(getContext()).getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                null, null, null, ContactsContract.Contacts.DISPLAY_NAME);
+        Objects.requireNonNull(cursor).moveToFirst();
 
-        myContacts.add(new MyContact("Grace BK", "9739757836"));
-        myContacts.add(new MyContact("Coucou", "685282738"));
-        myContacts.add(new MyContact("LILI", "64769527"));
+        while (cursor.moveToNext()) {
+            contactSet.add(new MyContact(cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)),
+                    cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))));
+        }
+        Log.e("NB_CONTACT", ""+contactSet.size());
 
-        myContacts.add(new MyContact("Grace BK", "9739757836"));
-        myContacts.add(new MyContact("Coucou", "685282738"));
-        myContacts.add(new MyContact("LILI", "64769527"));*/
+        return new ArrayList<>(contactSet);
+    }
+
+
+
+
+    private List<MyContact> getMyContactsOld() {
+        final Set<MyContact> contactSet = new HashSet<>();
+        Map<String, String> contactMap = new HashMap<>();
+
+        @SuppressLint("Recycle") Cursor cursor = Objects.requireNonNull(getContext()).getContentResolver().query(ContactsContract.Contacts.CONTENT_URI,
+                new String[]{ContactsContract.Data.DISPLAY_NAME, ContactsContract.Data._ID, ContactsContract.Contacts.HAS_PHONE_NUMBER},
+                null, null, null);
+
+        if (cursor == null) {
+            Log.e("CONTACTS", "Pas de contact trouve");
+            return null;
+        }
+
+        Objects.requireNonNull(cursor).moveToFirst();
+
+        while (cursor.moveToNext()) {
+            final long id = Long.parseLong(cursor.getString(cursor.getColumnIndex(ContactsContract.Data._ID)));
+            final String username = cursor.getString(cursor.getColumnIndex(ContactsContract.Data.DISPLAY_NAME));
+            final int has_phone_number = cursor.getInt(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));
+
+            if (has_phone_number > 0) {
+                contactSet.add(new MyContact(username, ""+has_phone_number));
+            }
+
+            //contactSet.add(new MyContact(cursor.getString(cursor.getColumnIndex(ContactsContract.Data.DISPLAY_NAME)),
+            //      cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))));
+
+            //contactMap.put(cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)),
+            //      cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)));
+
+            //contactSet.add(new MyContact(contactMap.keySet(), contactMap.values()));
+        }
+
+        if (!cursor.isClosed()) {
+            cursor.close();
+        }
+
+        //final List<MyContact>
+
+        Log.e("NB_CONTACT", ""+contactSet.size());
+
+        return new ArrayList<>(contactSet);
     }
 
 }
