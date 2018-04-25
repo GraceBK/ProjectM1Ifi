@@ -1,101 +1,78 @@
 package boukou.grace.projectm1ifi;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.TabLayout;
-import android.support.v4.view.ViewPager;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import boukou.grace.projectm1ifi.adapter_files.SectionsPagerAdapter;
+import java.util.ArrayList;
+import java.util.Objects;
+
+import boukou.grace.projectm1ifi.adapter_files.MyDiscussionAdapter;
+import boukou.grace.projectm1ifi.java_files.MyDiscussion;
 
 public class MainActivity extends AppCompatActivity {
 
     private final int PICK_CONTACT_REQUEST = 1; // Le code de reponse
+    private ArrayList<MyDiscussion> myDiscussions = new ArrayList<>();
 
-    private SectionsPagerAdapter mSectionsPagerAdapter;
-
-    private ViewPager mViewPager;
-
-    FloatingActionButton fab;
     FloatingActionButton fab_contact;
+
+    RecyclerView recyclerView;
+    MyDiscussionAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        // Create the adapter that will return a fragment for each of the three
-        // primary sections of the activity.
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
-        // Set up the ViewPager with the sections adapter.
-        mViewPager = findViewById(R.id.container);
-        mViewPager.setAdapter(mSectionsPagerAdapter);
+        prepareDiscs();
 
-        TabLayout tabLayout = findViewById(R.id.tabs);
+        recyclerView = findViewById(R.id.container_discussions);
 
-        mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
-        tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
+        adapter = new MyDiscussionAdapter(myDiscussions);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(adapter);
 
-        tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                mViewPager.setCurrentItem(tab.getPosition());
-                animateFab(tab.getPosition());
-                Log.e("MAIN_ACTIVITY", ""+tab.getPosition());
-            }
-
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-
-            }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-
-            }
-        });
-
-        fab = findViewById(R.id.fab);
+        FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                /*final String message = "Coucou comment tu vas?";
-                final String message2 = "Eqweqw eqoogpv vw xcu?";
-                Snackbar.make(view, "je crypte " + Cesar.crypter(2, message), Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-                Toast.makeText(getApplicationContext(), "Decrypt : " + Cesar.decrypter(2, message2), Toast.LENGTH_LONG).show();*/
+                pickContact();
             }
         });
+    }
 
-        fab_contact = findViewById(R.id.fab_contact);
-        fab_contact.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-//                pickContact();
-            }
-        });
+    private void prepareDiscs() {
+        myDiscussions.add(new MyDiscussion("Grace BK", "0650231529", "Coucou comment vas-tu?Coucou comment vas-tu?Coucou comment vas-tu?"));
+        myDiscussions.add(new MyDiscussion("Momo KMS", "+33753144701", ""));
+        myDiscussions.add(new MyDiscussion("Cédric", "+33680728051", ""));
 
+        myDiscussions.add(new MyDiscussion("Julien", "+33660772138", ""));
     }
 
     /**
      * Start the Activity
      */
-    /*
     private void pickContact() {
         Intent pickContactIntent = new Intent(Intent.ACTION_PICK, Uri.parse("content://contacts"));
         pickContactIntent.setType(ContactsContract.CommonDataKinds.Phone.CONTENT_TYPE); // Show user only contacts w/ phone numbers
         startActivityForResult(pickContactIntent, PICK_CONTACT_REQUEST);
     }
-    */
 
     /**
      * Receive the Result
@@ -107,11 +84,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICK_CONTACT_REQUEST) {
-//            getContact(data);
+            getContact(data);
         }
     }
 
-    /*
+
     private void getContact(Intent data) {
         try {
             Uri contactUri = data.getData();
@@ -127,28 +104,6 @@ public class MainActivity extends AppCompatActivity {
             Log.e("NOM ", name + " " + number);
         } catch (Exception e) {
             e.printStackTrace();
-        }
-    }
-    */
-
-    /**
-     * Methode qui change l'affichage du FloatingActionButton
-     * @param position
-     */
-    private void animateFab(int position) {
-        switch (position) {
-            case 0:
-                fab.hide();//fab.show();
-                fab_contact.hide();
-                break;
-            case 1:
-                fab.hide();
-                fab_contact.show();
-                break;
-            default:
-                fab.hide();//fab.show();
-                fab_contact.hide();
-                break;
         }
     }
 
@@ -173,5 +128,6 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
 
 }

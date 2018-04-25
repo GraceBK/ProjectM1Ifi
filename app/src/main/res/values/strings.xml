@@ -11,4 +11,5 @@
 
     <string name="edittext_type_message">Type message</string>
     <string name="lorem_ipsum">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus. Suspendisse lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor.</string>
+    <string name="title_activity_main">MainActivity</string>
 </resources>
