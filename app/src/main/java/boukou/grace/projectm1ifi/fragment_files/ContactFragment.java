@@ -16,16 +16,12 @@ import android.view.ViewGroup;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.TreeMap;
 
 import boukou.grace.projectm1ifi.R;
 import boukou.grace.projectm1ifi.adapter_files.MyContactAdapter;
@@ -91,6 +87,7 @@ public class ContactFragment extends Fragment {
 
         MyContactAdapter adapter = new MyContactAdapter(getMyContacts());
         recyclerView.setAdapter(adapter);
+        Log.w("CONTACT", ""+getMyContacts());
 
         //TextView textView = view.findViewById(R.id.nb_contact);
         //textView.setText(getString(R.string.section_format, Objects.requireNonNull(getArguments()).getInt(ARG_ITEM_NUMBER)));
@@ -107,10 +104,6 @@ public class ContactFragment extends Fragment {
         Objects.requireNonNull(cursor).moveToFirst();
 
         while (cursor.moveToNext()) {
-            /*
-            contactSet.add(new MyContact(cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)),
-                    cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))));
-             */
             map.put(cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)),
                     cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)));
         }
@@ -135,52 +128,4 @@ public class ContactFragment extends Fragment {
 
         return listContact;
     }
-
-
-
-
-    private List<MyContact> getMyContactsOld() {
-        final Set<MyContact> contactSet = new HashSet<>();
-        Map<String, String> contactMap = new HashMap<>();
-
-        @SuppressLint("Recycle") Cursor cursor = Objects.requireNonNull(getContext()).getContentResolver().query(ContactsContract.Contacts.CONTENT_URI,
-                new String[]{ContactsContract.Data.DISPLAY_NAME, ContactsContract.Data._ID, ContactsContract.Contacts.HAS_PHONE_NUMBER},
-                null, null, null);
-
-        if (cursor == null) {
-            Log.e("CONTACTS", "Pas de contact trouve");
-            return null;
-        }
-
-        Objects.requireNonNull(cursor).moveToFirst();
-
-        while (cursor.moveToNext()) {
-            final long id = Long.parseLong(cursor.getString(cursor.getColumnIndex(ContactsContract.Data._ID)));
-            final String username = cursor.getString(cursor.getColumnIndex(ContactsContract.Data.DISPLAY_NAME));
-            final int has_phone_number = cursor.getInt(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER));
-
-            if (has_phone_number > 0) {
-                contactSet.add(new MyContact(username, ""+has_phone_number));
-            }
-
-            //contactSet.add(new MyContact(cursor.getString(cursor.getColumnIndex(ContactsContract.Data.DISPLAY_NAME)),
-            //      cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))));
-
-            //contactMap.put(cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME)),
-            //      cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)));
-
-            //contactSet.add(new MyContact(contactMap.keySet(), contactMap.values()));
-        }
-
-        if (!cursor.isClosed()) {
-            cursor.close();
-        }
-
-        //final List<MyContact>
-
-        Log.e("NB_CONTACT", ""+contactSet.size());
-
-        return new ArrayList<>(contactSet);
-    }
-
 }

@@ -1,9 +1,6 @@
 package boukou.grace.projectm1ifi.java_files;
 
 import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 /**
  * boukou.grace.projectm1ifi.java_files
@@ -52,5 +49,10 @@ public class MyContact implements Comparator<String> {
             return 0;
         }
         return o1.compareTo(o2);
+    }
+
+    public boolean isFrenchNumber(String number) {
+        boolean res = false;
+        return res;
     }
 }

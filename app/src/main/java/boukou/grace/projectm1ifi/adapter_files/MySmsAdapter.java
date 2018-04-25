@@ -7,12 +7,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import java.util.Calendar;
 import java.util.List;
 import java.util.Objects;
 
 import boukou.grace.projectm1ifi.R;
-import boukou.grace.projectm1ifi.java_files.MyContact;
 import boukou.grace.projectm1ifi.java_files.MySms;
 
 /**

@@ -1,4 +1,4 @@
-package boukou.grace.projectm1ifi.db;
+package boukou.grace.projectm1ifi.db.sqlite_db;
 
 import android.provider.BaseColumns;
 

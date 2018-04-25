@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Objects;
 
 import boukou.grace.projectm1ifi.adapter_files.MySmsAdapter;
-import boukou.grace.projectm1ifi.db.SmsSQLiteOpenHelper;
+import boukou.grace.projectm1ifi.db.sqlite_db.SmsSQLiteOpenHelper;
 import boukou.grace.projectm1ifi.java_files.MySms;
 import boukou.grace.projectm1ifi.java_files.cesar.Cesar;
 
