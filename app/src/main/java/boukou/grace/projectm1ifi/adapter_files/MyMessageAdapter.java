@@ -12,37 +12,42 @@ import java.util.List;
 
 import boukou.grace.projectm1ifi.DetailActivity;
 import boukou.grace.projectm1ifi.R;
-import boukou.grace.projectm1ifi.java_files.MyDiscussion;
+import boukou.grace.projectm1ifi.db.room_db.Sms;
 
 /**
  * boukou.grace.projectm1ifi.adapter_files
- * Created by grace on 14/04/2018.
+ * Created by grace on 25/04/2018.
  */
-public class MyDiscussionAdapter extends RecyclerView.Adapter<MyDiscussionAdapter.MyViewHolder> {
+public class MyMessageAdapter extends RecyclerView.Adapter<MyMessageAdapter.MyViewHolder> {
 
-    private List<MyDiscussion> myDiscussionList;
+    private List<Sms> smsList;
 
-    public MyDiscussionAdapter(List<MyDiscussion> myDiscussionList) {
-        this.myDiscussionList = myDiscussionList;
+    public MyMessageAdapter(List<Sms> smsList) {
+        this.smsList = smsList;
     }
 
     @NonNull
     @Override
-    public MyDiscussionAdapter.MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public MyMessageAdapter.MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.recent_item, parent, false);
-        return new MyDiscussionAdapter.MyViewHolder(itemView);
+        return new MyMessageAdapter.MyViewHolder(itemView);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull MyDiscussionAdapter.MyViewHolder holder, int position) {
-        MyDiscussion myDiscussion = myDiscussionList.get(position);
-        holder.username.setText(myDiscussion.getUsername());
-        holder.status_sms.setText(myDiscussion.getDescription());
+    public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
+        Sms sms = smsList.get(position);
+        holder.username.setText(sms.nameReceiver);
+        holder.status_sms.setText(sms.sms1);
     }
 
     @Override
     public int getItemCount() {
-        return myDiscussionList.size();
+        return smsList.size();
+    }
+
+    public void update(List<Sms> smsList) {
+        this.smsList = smsList;
+        notifyDataSetChanged();
     }
 
     class MyViewHolder extends RecyclerView.ViewHolder {
@@ -59,12 +64,13 @@ public class MyDiscussionAdapter extends RecyclerView.Adapter<MyDiscussionAdapte
                 @Override
                 public void onClick(View v) {
                     final Intent intent = new Intent(v.getContext(), DetailActivity.class);
-                    intent.putExtra("USERNAME", myDiscussionList.get(getLayoutPosition()).getUsername());
-                    intent.putExtra("PHONE", myDiscussionList.get(getLayoutPosition()).getPhone_number());
-                    intent.putExtra("DESCRIPTION", myDiscussionList.get(getLayoutPosition()).getDescription());
+                    intent.putExtra("USERNAME", smsList.get(getLayoutPosition()).nameReceiver);
+                    intent.putExtra("PHONE", smsList.get(getLayoutPosition()).phoneReceiver);
+                    intent.putExtra("DESCRIPTION", smsList.get(getLayoutPosition()).sms1);
                     v.getContext().startActivity(intent);
                 }
             });
         }
     }
+
 }

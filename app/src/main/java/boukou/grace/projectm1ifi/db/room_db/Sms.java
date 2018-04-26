@@ -10,7 +10,7 @@ import android.arch.persistence.room.PrimaryKey;
  */
 @Entity
 public class Sms {
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
     public int uid;
 
     @ColumnInfo(name = "name_receiver")

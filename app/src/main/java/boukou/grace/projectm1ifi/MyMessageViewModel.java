@@ -1,8 +1,10 @@
 package boukou.grace.projectm1ifi;
 
+import android.annotation.SuppressLint;
 import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 
 import java.util.List;
@@ -31,6 +33,23 @@ public class MyMessageViewModel extends AndroidViewModel {
 
     public LiveData<List<Sms>> getSmsList() {
         return smsList;
+    }
+
+    @SuppressLint("StaticFieldLeak")
+    public void addSms(String phoneSender, String phoneReceiver, final String sms, String key) {
+        Sms mySms = new Sms();
+        mySms.key = key;
+        mySms.nameReceiver = phoneReceiver;
+        mySms.phoneSender = phoneSender;
+        mySms.sms1 = sms;
+
+        new AsyncTask<Sms, Void, Void>() {
+            @Override
+            protected Void doInBackground(Sms... mySms) {
+                message.smsDao().insertSms(mySms);
+                return null;
+            }
+        }.execute(mySms);
     }
 
     public void update(List<Sms> sms) {

@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <!--include layout="@layout/disc_item"/-->
+    <!--include layout="@layout/recent_item"/-->
 
     <!--TextView
         android:id="@+id/section_label"

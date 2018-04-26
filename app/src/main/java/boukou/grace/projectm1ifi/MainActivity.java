@@ -1,13 +1,16 @@
 package boukou.grace.projectm1ifi;
 
 import android.annotation.SuppressLint;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -18,20 +21,27 @@ import android.view.MenuItem;
 import android.view.View;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
-import boukou.grace.projectm1ifi.adapter_files.MyDiscussionAdapter;
-import boukou.grace.projectm1ifi.java_files.MyDiscussion;
+import boukou.grace.projectm1ifi.adapter_files.MyMessageAdapter;
+import boukou.grace.projectm1ifi.db.room_db.MyMessage;
+import boukou.grace.projectm1ifi.db.room_db.RContact;
+import boukou.grace.projectm1ifi.db.room_db.Sms;
 
 public class MainActivity extends AppCompatActivity {
 
-    private final int PICK_CONTACT_REQUEST = 1; // Le code de reponse
-    private ArrayList<MyDiscussion> myDiscussions = new ArrayList<>();
+    private static final String TAG = "MainActivity";
 
-    FloatingActionButton fab_contact;
+    private final int PICK_CONTACT_REQUEST = 1; // Le code de reponse
 
     RecyclerView recyclerView;
-    MyDiscussionAdapter adapter;
+    RecyclerView.Adapter adapter;
+    ArrayList<RContact> contacts = new ArrayList<>();
+
+    private MyMessage db;
+    private MyMessageViewModel viewModel;
+    private MyMessageAdapter messageAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,13 +50,27 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        prepareDiscs();
+        db = MyMessage.getDatabase(getApplicationContext());
 
-        recyclerView = findViewById(R.id.container_discussions);
+        recyclerView = findViewById(R.id.main_recycler_view);
 
-        adapter = new MyDiscussionAdapter(myDiscussions);
+        for (int i = 0; i < 100; i++) {
+            RContact contact = new RContact("Grace " + i, "098778978", "send");
+            contacts.add(contact);
+        }
+
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new RecentAdapter(contacts);
         recyclerView.setAdapter(adapter);
+
+        /*viewModel = ViewModelProviders.of(this).get(MyMessageViewModel.class);
+        viewModel.getSmsList().observe(this, new Observer<List<Sms>>() {
+            @Override
+            public void onChanged(@Nullable List<Sms> sms) {
+                messageAdapter.update(sms);
+            }
+        });*/
+        //viewModel.addSms(sms1.nameReceiver, sms1.phoneReceiver, sms1.sms1, sms1.key);
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -55,14 +79,6 @@ public class MainActivity extends AppCompatActivity {
                 pickContact();
             }
         });
-    }
-
-    private void prepareDiscs() {
-        myDiscussions.add(new MyDiscussion("Grace BK", "0650231529", "Coucou comment vas-tu?Coucou comment vas-tu?Coucou comment vas-tu?"));
-        myDiscussions.add(new MyDiscussion("Momo KMS", "+33753144701", ""));
-        myDiscussions.add(new MyDiscussion("Cédric", "+33680728051", ""));
-
-        myDiscussions.add(new MyDiscussion("Julien", "+33660772138", ""));
     }
 
     /**
@@ -89,6 +105,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    @SuppressLint("StaticFieldLeak")
     private void getContact(Intent data) {
         try {
             Uri contactUri = data.getData();
@@ -101,7 +118,23 @@ public class MainActivity extends AppCompatActivity {
             int phone_id = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
             String name = cursor.getString(username_id);
             String number = cursor.getString(phone_id);
-            Log.e("NOM ", name + " " + number);
+            // DONE ajout d'une discussion
+
+            Sms sms_ = new Sms();
+            sms_.nameReceiver = name;
+            sms_.phoneReceiver = number;
+
+            new AsyncTask<Sms, Void, Void>() {
+                @Override
+                protected Void doInBackground(Sms... sms) {
+                    for (Sms sms1 : sms) {
+                        db.smsDao().insertSms(sms1);
+                    }
+                    return null;
+                }
+            }.execute(sms_);
+
+            Log.e(TAG, name + " " + number);
         } catch (Exception e) {
             e.printStackTrace();
         }

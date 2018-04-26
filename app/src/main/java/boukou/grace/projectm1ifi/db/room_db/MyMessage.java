@@ -9,7 +9,7 @@ import android.content.Context;
  * boukou.grace.projectm1ifi.db.room_db
  * Created by grace on 25/04/2018.
  */
-@Database(entities = {Sms.class}, version = 1)
+@Database(entities = {Sms.class}, version = 1, exportSchema = false)
 public abstract class MyMessage extends RoomDatabase {
     public abstract SmsDao smsDao();
 
