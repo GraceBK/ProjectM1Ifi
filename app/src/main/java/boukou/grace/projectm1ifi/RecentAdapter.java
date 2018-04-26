@@ -1,5 +1,6 @@
 package boukou.grace.projectm1ifi;
 
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -57,6 +58,17 @@ class RecentAdapter extends RecyclerView.Adapter<RecentAdapter.ViewHolder> {
             super(itemView);
             username = itemView.findViewById(R.id.username_or_phone_text_view);
             status = itemView.findViewById(R.id.status_sms_text_view);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    final Intent intent = new Intent(v.getContext(), DetailActivity.class);
+                    intent.putExtra("USERNAME", recents.get(getLayoutPosition()).getUsername());
+                    intent.putExtra("PHONE", recents.get(getLayoutPosition()).getPhone());
+                    intent.putExtra("STATUS", recents.get(getLayoutPosition()).getStatus());
+                    v.getContext().startActivity(intent);
+                }
+            });
         }
     }
 }

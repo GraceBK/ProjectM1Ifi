@@ -23,7 +23,6 @@ import android.view.View;
 import java.util.List;
 import java.util.Objects;
 
-import boukou.grace.projectm1ifi.adapter_files.MyMessageAdapter;
 import boukou.grace.projectm1ifi.db.room_db.AppDatabase;
 import boukou.grace.projectm1ifi.db.room_db.RContact;
 
@@ -135,6 +134,12 @@ public class MainActivity extends AppCompatActivity {
                     return null;
                 }
             }.execute(rContact);
+
+            // DONE : j'envoi des data a DetailActivity
+            final Intent intent = new Intent(getApplicationContext(), DetailActivity.class);
+            intent.putExtra("USERNAME", name);
+            intent.putExtra("PHONE", number);
+            startActivity(intent);
 
             Log.e(TAG, name + " " + number);
         } catch (Exception e) {
