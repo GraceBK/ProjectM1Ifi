@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import boukou.grace.projectm1ifi.db.room_db.RContact;
 
@@ -17,9 +18,9 @@ import boukou.grace.projectm1ifi.db.room_db.RContact;
  */
 class RecentAdapter extends RecyclerView.Adapter<RecentAdapter.ViewHolder> {
 
-    private ArrayList<RContact> recents;
+    private List<RContact> recents;
 
-    RecentAdapter(ArrayList<RContact> recentList) {
+    public RecentAdapter(List<RContact> recentList) {
         this.recents = recentList;
     }
 
@@ -40,6 +41,11 @@ class RecentAdapter extends RecyclerView.Adapter<RecentAdapter.ViewHolder> {
     @Override
     public int getItemCount() {
         return recents.size();
+    }
+
+    public void update(List<RContact> rContacts) {
+        this.recents = rContacts;
+        notifyDataSetChanged();
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {

@@ -20,14 +20,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 import boukou.grace.projectm1ifi.adapter_files.MyMessageAdapter;
-import boukou.grace.projectm1ifi.db.room_db.MyMessage;
+import boukou.grace.projectm1ifi.db.room_db.AppDatabase;
 import boukou.grace.projectm1ifi.db.room_db.RContact;
-import boukou.grace.projectm1ifi.db.room_db.Sms;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -36,12 +34,13 @@ public class MainActivity extends AppCompatActivity {
     private final int PICK_CONTACT_REQUEST = 1; // Le code de reponse
 
     RecyclerView recyclerView;
-    RecyclerView.Adapter adapter;
-    ArrayList<RContact> contacts = new ArrayList<>();
+    private RecentAdapter adapter;
+    List<RContact> contacts;
+    private RecentViewModel viewModel;
 
-    private MyMessage db;
-    private MyMessageViewModel viewModel;
-    private MyMessageAdapter messageAdapter;
+    private AppDatabase db;
+    //private MyMessageViewModel viewModel;
+    //private MyMessageAdapter messageAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,24 +49,27 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        db = MyMessage.getDatabase(getApplicationContext());
+        db = AppDatabase.getDatabase(getApplicationContext());
+
+        contacts = db.rContactDao().getAllRContacts();
 
         recyclerView = findViewById(R.id.main_recycler_view);
-
-        for (int i = 0; i < 100; i++) {
-            RContact contact = new RContact("Grace " + i, "098778978", "send");
-            contacts.add(contact);
-        }
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new RecentAdapter(contacts);
         recyclerView.setAdapter(adapter);
 
-        /*viewModel = ViewModelProviders.of(this).get(MyMessageViewModel.class);
-        viewModel.getSmsList().observe(this, new Observer<List<Sms>>() {
+        viewModel = ViewModelProviders.of(this).get(RecentViewModel.class);
+        viewModel.getContactList().observe(this, new Observer<List<RContact>>() {
             @Override
-            public void onChanged(@Nullable List<Sms> sms) {
-                messageAdapter.update(sms);
+            public void onChanged(@Nullable List<RContact> rContacts) {
+                adapter.update(rContacts);
+            }
+        });
+        /*viewModel.getContactList().observe(this, new Observer<List<RContact>>() {
+            @Override
+            public void onChanged(@Nullable List<RContact> rContacts) {
+                adapter.update(rContacts);
             }
         });*/
         //viewModel.addSms(sms1.nameReceiver, sms1.phoneReceiver, sms1.sms1, sms1.key);
@@ -120,19 +122,19 @@ public class MainActivity extends AppCompatActivity {
             String number = cursor.getString(phone_id);
             // DONE ajout d'une discussion
 
-            Sms sms_ = new Sms();
-            sms_.nameReceiver = name;
-            sms_.phoneReceiver = number;
+            RContact rContact = new RContact();
+            rContact.setUsername(name);
+            rContact.setPhone(number);
 
-            new AsyncTask<Sms, Void, Void>() {
+            new AsyncTask<RContact, Void, Void>() {
                 @Override
-                protected Void doInBackground(Sms... sms) {
-                    for (Sms sms1 : sms) {
-                        db.smsDao().insertSms(sms1);
+                protected Void doInBackground(RContact... contacts) {
+                    for (RContact contact : contacts) {
+                        db.rContactDao().insertRContact(contact);
                     }
                     return null;
                 }
-            }.execute(sms_);
+            }.execute(rContact);
 
             Log.e(TAG, name + " " + number);
         } catch (Exception e) {

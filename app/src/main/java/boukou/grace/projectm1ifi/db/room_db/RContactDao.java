@@ -1,5 +1,6 @@
 package boukou.grace.projectm1ifi.db.room_db;
 
+import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.OnConflictStrategy;
@@ -15,6 +16,9 @@ import java.util.List;
 public interface RContactDao {
     @Query("SELECT * FROM rcontact")
     List<RContact> getAllRContacts();
+
+    @Query("SELECT * FROM rcontact")
+    LiveData<List<RContact>> getAll();
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertRContact(RContact... contacts);

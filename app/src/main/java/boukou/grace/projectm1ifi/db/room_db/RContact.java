@@ -22,6 +22,8 @@ public class RContact {
     @ColumnInfo(name = "status_sms")
     private String status;
 
+    public RContact() {}
+
     public RContact(String username, String phone, String status) {
         this.username = username;
         this.phone = phone;
