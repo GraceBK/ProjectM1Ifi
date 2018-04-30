@@ -2,6 +2,8 @@ package boukou.grace.projectm1ifi.db.room_db;
 
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.ForeignKey;
+import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 
 /**
@@ -9,7 +11,7 @@ import android.arch.persistence.room.PrimaryKey;
  * Created by grace on 25/04/2018.
  */
 @Entity
-public class Sms {
+public class Msg {
     @PrimaryKey(autoGenerate = true)
     public int uid;
 

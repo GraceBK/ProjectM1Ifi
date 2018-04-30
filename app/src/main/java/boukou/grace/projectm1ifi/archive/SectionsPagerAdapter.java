@@ -1,4 +1,4 @@
-package boukou.grace.projectm1ifi.adapter_files;
+package boukou.grace.projectm1ifi.archive;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;

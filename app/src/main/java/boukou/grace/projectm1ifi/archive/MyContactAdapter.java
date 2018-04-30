@@ -1,4 +1,4 @@
-package boukou.grace.projectm1ifi.adapter_files;
+package boukou.grace.projectm1ifi.archive;
 
 import android.content.Intent;
 import android.support.annotation.NonNull;

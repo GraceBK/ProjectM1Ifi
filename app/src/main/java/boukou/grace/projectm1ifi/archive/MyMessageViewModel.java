@@ -1,4 +1,4 @@
-package boukou.grace.projectm1ifi;
+package boukou.grace.projectm1ifi.archive;
 
 import android.annotation.SuppressLint;
 import android.app.Application;
@@ -10,8 +10,8 @@ import android.support.annotation.NonNull;
 import java.util.List;
 import java.util.Objects;
 
+import boukou.grace.projectm1ifi.db.room_db.Msg;
 import boukou.grace.projectm1ifi.db.room_db.MyMessage;
-import boukou.grace.projectm1ifi.db.room_db.Sms;
 
 /**
  * boukou.grace.projectm1ifi
@@ -21,38 +21,38 @@ public class MyMessageViewModel extends AndroidViewModel {
 
     private MyMessage message;
 
-    private LiveData<List<Sms>> smsList;
+    private LiveData<List<Msg>> smsList;
 
     public MyMessageViewModel(@NonNull Application application) {
         super(application);
 
         message = MyMessage.getDatabase(this.getApplication());
 
-        smsList = message.smsDao().getAll();
+        smsList = message.msgDao().getAll();
     }
 
-    public LiveData<List<Sms>> getSmsList() {
+    public LiveData<List<Msg>> getSmsList() {
         return smsList;
     }
 
     @SuppressLint("StaticFieldLeak")
     public void addSms(String phoneSender, String phoneReceiver, final String sms, String key) {
-        Sms mySms = new Sms();
-        mySms.key = key;
-        mySms.nameReceiver = phoneReceiver;
-        mySms.phoneSender = phoneSender;
-        mySms.sms1 = sms;
+        Msg myMsg = new Msg();
+        myMsg.key = key;
+        myMsg.nameReceiver = phoneReceiver;
+        myMsg.phoneSender = phoneSender;
+        myMsg.sms1 = sms;
 
-        new AsyncTask<Sms, Void, Void>() {
+        new AsyncTask<Msg, Void, Void>() {
             @Override
-            protected Void doInBackground(Sms... mySms) {
-                message.smsDao().insertSms(mySms);
+            protected Void doInBackground(Msg... mySms) {
+                message.msgDao().insertSms(mySms);
                 return null;
             }
-        }.execute(mySms);
+        }.execute(myMsg);
     }
 
-    public void update(List<Sms> sms) {
+    public void update(List<Msg> sms) {
         Objects.requireNonNull(smsList.getValue()).clear();
         smsList.getValue().addAll(sms);
     }

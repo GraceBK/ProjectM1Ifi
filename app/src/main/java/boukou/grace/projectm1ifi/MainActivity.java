@@ -25,6 +25,7 @@ import java.util.Objects;
 
 import boukou.grace.projectm1ifi.db.room_db.AppDatabase;
 import boukou.grace.projectm1ifi.db.room_db.RContact;
+import boukou.grace.projectm1ifi.java_files.cesar.Cesar;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -163,6 +164,7 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Log.d(TAG, ""+Cesar.generateKey());
             return true;
         }
 

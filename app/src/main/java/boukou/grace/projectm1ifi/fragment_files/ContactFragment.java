@@ -24,7 +24,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import boukou.grace.projectm1ifi.R;
-import boukou.grace.projectm1ifi.adapter_files.MyContactAdapter;
+import boukou.grace.projectm1ifi.archive.MyContactAdapter;
 import boukou.grace.projectm1ifi.java_files.MyContact;
 
 /**

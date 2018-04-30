@@ -13,13 +13,19 @@ import java.util.List;
  * Created by grace on 25/04/2018.
  */
 @Dao
-public interface SmsDao {
-    @Query("SELECT * FROM sms")
-    LiveData<List<Sms>> getAll();
+public interface MsgDao {
+    @Query("SELECT * FROM Msg")
+    List<Msg> getAllMsg();
+
+    @Query("SELECT * FROM Msg WHERE numero_receiver = :phone")
+    List<Msg> getAllMsgByNumber(String phone);
+
+    @Query("SELECT * FROM Msg")
+    LiveData<List<Msg>> getAll();
 
     //@Query("SELECT sms.name_receiver, sms.numero_receiver FROM sms WHERE uid IN (:smsIds)")
-    //List<Sms> getAllSmsByIds(int[] smsIds);
+    //List<Msg> getAllSmsByIds(int[] smsIds);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insertSms(Sms... sms);
+    void insertSms(Msg... msgs);
 }

@@ -1,15 +1,20 @@
 package boukou.grace.projectm1ifi;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.PendingIntent;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -26,7 +31,8 @@ import android.widget.Toast;
 import java.util.List;
 import java.util.Objects;
 
-import boukou.grace.projectm1ifi.adapter_files.MySmsAdapter;
+import boukou.grace.projectm1ifi.db.room_db.AppDatabase;
+import boukou.grace.projectm1ifi.db.room_db.Msg;
 import boukou.grace.projectm1ifi.db.sqlite_db.SmsSQLiteOpenHelper;
 import boukou.grace.projectm1ifi.java_files.MySms;
 import boukou.grace.projectm1ifi.java_files.cesar.Cesar;
@@ -40,10 +46,13 @@ public class DetailActivity extends AppCompatActivity {
     String SENT = "SMS_SENT";
     String DELIVERED = "SMS_DELIVERED";
 
-    private RecyclerView mySmsRecycler;
-    private MySmsAdapter mySmsAdapter;
+    RecyclerView mySmsRecycler;
+    private MsgAdapter adapter;
+    private MsgViewModel viewModel;
 
-    private List<MySms> smsList;
+    List<Msg> msgList;
+
+    private AppDatabase db;
 
     String name;
     String phone;
@@ -54,9 +63,9 @@ public class DetailActivity extends AppCompatActivity {
     TextView sms;
     TextView current_time;
 
-    int cle = 2;
+    int cle;
 
-    SmsSQLiteOpenHelper sqLiteOpenHelper;
+//    SmsSQLiteOpenHelper sqLiteOpenHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,25 +76,40 @@ public class DetailActivity extends AppCompatActivity {
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
+        db = AppDatabase.getDatabase(getApplicationContext());
+
+//        msgList = db.msgDao().getAllMsg();
+
+
         name = getIntent().getStringExtra("USERNAME");
         phone = getIntent().getStringExtra("PHONE");
 
         getSupportActionBar().setTitle(name);
+        msgList = db.msgDao().getAllMsgByNumber(phone);
 
         sms = findViewById(R.id.edit_txt_send);
         //current_time = findViewById(R.id.e);
 
         // TODO : DB
-        sqLiteOpenHelper = new SmsSQLiteOpenHelper(this);
+        //sqLiteOpenHelper = new SmsSQLiteOpenHelper(this);
 
-        smsList = sqLiteOpenHelper.getSmsByPhoneNumber(phone);
+        //smsList = sqLiteOpenHelper.getSmsByPhoneNumber(phone);
 
         mySmsRecycler = findViewById(R.id.container_sms);
         mySmsRecycler.setLayoutManager(new LinearLayoutManager(this));
 
-        mySmsAdapter = new MySmsAdapter(smsList);
-        mySmsRecycler.smoothScrollToPosition(smsList.size());
-        mySmsRecycler.setAdapter(mySmsAdapter);
+        adapter = new MsgAdapter(msgList);
+        mySmsRecycler.smoothScrollToPosition(msgList.size());
+        mySmsRecycler.setAdapter(adapter);
+
+
+        viewModel = ViewModelProviders.of(this).get(MsgViewModel.class);
+        viewModel.getMsgList().observe(this, new Observer<List<Msg>>() {
+            @Override
+            public void onChanged(@Nullable List<Msg> msgs) {
+                //adapter.update(msgs);
+            }
+        });
 
 
 
@@ -137,7 +161,7 @@ public class DetailActivity extends AppCompatActivity {
                     case Activity.RESULT_OK:
                         Toast.makeText(getBaseContext(), "SMS livré", Toast.LENGTH_SHORT).show();
                         SmsManager smsKEY = SmsManager.getDefault();
-                        smsKEY.sendTextMessage(phone, null, "crypté avec Cesar Mot de passe = 2", null, null);
+                        smsKEY.sendTextMessage(phone, null, "Cesar Password = " + cle, null, null);
                         break;
                     case Activity.RESULT_CANCELED:
                         // TODO : action a faire si SMS non livré
@@ -151,17 +175,36 @@ public class DetailActivity extends AppCompatActivity {
 
         FloatingActionButton fab = findViewById(R.id.fab_send);
         fab.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("StaticFieldLeak")
             @Override
             public void onClick(View view) {
                 Log.e("rrrr", sms.getText().toString() + " " + phone);
                 if (!sms.getText().toString().isEmpty()) {
+                    cle = Cesar.generateKey();
                     // TODO add requestSmsPermission() dans un try
                     sms_clair = sms.getText().toString();
                     sms_chiffre = Cesar.crypter(cle, sms_clair);
                     sendSMS(sms_chiffre);
                     // DONE Action envoye
                     // Deplacer cette fonction
-                    sqLiteOpenHelper.addSMS(new MySms(phone, sms_clair, ""+cle, sender));
+                    //sqLiteOpenHelper.addSMS(new MySms(phone, sms_clair, ""+cle, sender));
+                    Msg msg = new Msg();
+                    msg.phoneReceiver = phone;
+                    msg.phoneSender = sender;
+                    msg.sms1 = sms_chiffre;
+                    msg.sms2 = sms_clair;
+                    msg.key = ""+cle;
+
+                    new AsyncTask<Msg, Void, Void>() {
+
+                        @Override
+                        protected Void doInBackground(Msg... msgs) {
+                            for (Msg msg1 : msgs) {
+                                db.msgDao().insertSms(msg1);
+                            }
+                            return null;
+                        }
+                    }.execute(msg);
                     sms.setText("");
                 }
             }

@@ -12,7 +12,7 @@ import java.util.List;
 
 import boukou.grace.projectm1ifi.DetailActivity;
 import boukou.grace.projectm1ifi.R;
-import boukou.grace.projectm1ifi.db.room_db.Sms;
+import boukou.grace.projectm1ifi.db.room_db.Msg;
 
 /**
  * boukou.grace.projectm1ifi.adapter_files
@@ -20,10 +20,10 @@ import boukou.grace.projectm1ifi.db.room_db.Sms;
  */
 public class MyMessageAdapter extends RecyclerView.Adapter<MyMessageAdapter.MyViewHolder> {
 
-    private List<Sms> smsList;
+    private List<Msg> msgList;
 
-    public MyMessageAdapter(List<Sms> smsList) {
-        this.smsList = smsList;
+    public MyMessageAdapter(List<Msg> msgList) {
+        this.msgList = msgList;
     }
 
     @NonNull
@@ -35,18 +35,18 @@ public class MyMessageAdapter extends RecyclerView.Adapter<MyMessageAdapter.MyVi
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
-        Sms sms = smsList.get(position);
-        holder.username.setText(sms.nameReceiver);
-        holder.status_sms.setText(sms.sms1);
+        Msg msg = msgList.get(position);
+        holder.username.setText(msg.nameReceiver);
+        holder.status_sms.setText(msg.sms1);
     }
 
     @Override
     public int getItemCount() {
-        return smsList.size();
+        return msgList.size();
     }
 
-    public void update(List<Sms> smsList) {
-        this.smsList = smsList;
+    public void update(List<Msg> msgList) {
+        this.msgList = msgList;
         notifyDataSetChanged();
     }
 
@@ -64,9 +64,9 @@ public class MyMessageAdapter extends RecyclerView.Adapter<MyMessageAdapter.MyVi
                 @Override
                 public void onClick(View v) {
                     final Intent intent = new Intent(v.getContext(), DetailActivity.class);
-                    intent.putExtra("USERNAME", smsList.get(getLayoutPosition()).nameReceiver);
-                    intent.putExtra("PHONE", smsList.get(getLayoutPosition()).phoneReceiver);
-                    intent.putExtra("DESCRIPTION", smsList.get(getLayoutPosition()).sms1);
+                    intent.putExtra("USERNAME", msgList.get(getLayoutPosition()).nameReceiver);
+                    intent.putExtra("PHONE", msgList.get(getLayoutPosition()).phoneReceiver);
+                    intent.putExtra("DESCRIPTION", msgList.get(getLayoutPosition()).sms1);
                     v.getContext().startActivity(intent);
                 }
             });
