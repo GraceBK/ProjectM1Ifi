@@ -32,4 +32,11 @@ public class Msg {
 
     @ColumnInfo(name = "cle")
     public String key;
+
+    @Override
+    public String toString() {
+        String res;
+        res = uid +" "+ nameReceiver +" "+ phoneReceiver +" "+ phoneSender +" "+ sms1 +" "+ sms2 +" "+ key;
+        return res;
+    }
 }

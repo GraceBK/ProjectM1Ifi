@@ -39,6 +39,8 @@ import boukou.grace.projectm1ifi.java_files.cesar.Cesar;
 
 public class DetailActivity extends AppCompatActivity {
 
+    private static final String TAG = "DetailActivity";
+
     private static final int MY_PERMISSIONS_REQUEST_SEND_SMS = 0;
 
     private BroadcastReceiver sendBroadcastReceiver;
@@ -47,8 +49,8 @@ public class DetailActivity extends AppCompatActivity {
     String DELIVERED = "SMS_DELIVERED";
 
     RecyclerView mySmsRecycler;
-    private MsgAdapter adapter;
-    private MsgViewModel viewModel;
+    MsgAdapter adapter;
+    MsgViewModel viewModel;
 
     List<Msg> msgList;
 
@@ -62,8 +64,6 @@ public class DetailActivity extends AppCompatActivity {
 
     TextView sms;
     TextView current_time;
-
-    int cle;
 
 //    SmsSQLiteOpenHelper sqLiteOpenHelper;
 
@@ -99,6 +99,11 @@ public class DetailActivity extends AppCompatActivity {
         mySmsRecycler.setLayoutManager(new LinearLayoutManager(this));
 
         adapter = new MsgAdapter(msgList);
+        for (int i = 0; i < msgList.size(); i++) {
+            Log.d(TAG + "ALL", msgList.get(i).toString());
+            Log.d(TAG + "ALL", msgList.get(i).key);
+        }
+
         mySmsRecycler.smoothScrollToPosition(msgList.size());
         mySmsRecycler.setAdapter(adapter);
 
@@ -161,7 +166,9 @@ public class DetailActivity extends AppCompatActivity {
                     case Activity.RESULT_OK:
                         Toast.makeText(getBaseContext(), "SMS livré", Toast.LENGTH_SHORT).show();
                         SmsManager smsKEY = SmsManager.getDefault();
-                        smsKEY.sendTextMessage(phone, null, "Cesar Password = " + cle, null, null);
+                        // TODO : send the key message
+                        Log.e("SEND KEY", "la cle ?");
+                        //smsKEY.sendTextMessage(phone, null, "Cesar Password = " + cle, null, null);
                         break;
                     case Activity.RESULT_CANCELED:
                         // TODO : action a faire si SMS non livré
@@ -180,11 +187,11 @@ public class DetailActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Log.e("rrrr", sms.getText().toString() + " " + phone);
                 if (!sms.getText().toString().isEmpty()) {
-                    cle = Cesar.generateKey();
+                    int cle = Cesar.generateKey();
                     // TODO add requestSmsPermission() dans un try
                     sms_clair = sms.getText().toString();
                     sms_chiffre = Cesar.crypter(cle, sms_clair);
-                    sendSMS(sms_chiffre);
+                    sendSMS(sms_chiffre, cle);
                     // DONE Action envoye
                     // Deplacer cette fonction
                     //sqLiteOpenHelper.addSMS(new MySms(phone, sms_clair, ""+cle, sender));
@@ -226,7 +233,7 @@ public class DetailActivity extends AppCompatActivity {
         }
     }
 
-    protected void sendSMS(String msg) {
+    protected void sendSMS(String msg, int cle) {
         try {
             String SENT = "SMS_SENT";
             String DELIVERED = "SMS_DELIVERED";

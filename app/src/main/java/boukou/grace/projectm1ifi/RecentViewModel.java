@@ -9,7 +9,6 @@ import android.support.annotation.NonNull;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Observable;
 
 import boukou.grace.projectm1ifi.db.room_db.AppDatabase;
 import boukou.grace.projectm1ifi.db.room_db.RContact;

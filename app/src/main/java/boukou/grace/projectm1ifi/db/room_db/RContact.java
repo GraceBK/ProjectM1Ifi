@@ -9,7 +9,8 @@ import android.arch.persistence.room.PrimaryKey;
  * boukou.grace.projectm1ifi.db.room_db
  * Created by grace on 26/04/2018.
  */
-@Entity
+@Entity(indices = {@Index(value = "phone_number",
+        unique = true)})
 public class RContact {
     @PrimaryKey(autoGenerate = true)
     public int uid;
