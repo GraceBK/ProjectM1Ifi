@@ -99,19 +99,19 @@ public class DetailActivity extends AppCompatActivity {
         mySmsRecycler.setLayoutManager(new LinearLayoutManager(this));
 
         adapter = new MsgAdapter(msgList);
-        for (int i = 0; i < msgList.size(); i++) {
+       for (int i = 0; i < msgList.size(); i++) {
             Log.d(TAG + "ALL", msgList.get(i).toString());
             Log.d(TAG + "ALL", msgList.get(i).key);
-            Log.e(TAG + "ALL", "la cle ?"+db.msgDao().getKey(msgList.get(i).nameReceiver));
-            Log.e(TAG + "ALL", "la cle ?"+ msgList.get(i).key);
-            Log.e(TAG + "ALL", "TAILLE = "+ msgList.size());
+       //     Log.e(TAG + "ALL", "la cle ?"+db.msgDao().getKey(msgList.get(i).nameReceiver));
+         //   Log.e(TAG + "ALL", "la cle ?"+ msgList.get(i).key);
+           // Log.e(TAG + "ALL", "TAILLE = "+ msgList.size());
         }
 
         //String cle = msgList.get(msgList.size()).key;
 
         Log.e(TAG + "ALL", "cle=");
         Log.e(TAG + "ALL", "taille="+ msgList.size());
-
+//*/
         //final int taille = msgList.size();
 
         //final String cle = db.msgDao().getKey(msgList.get(taille).nameReceiver);
@@ -184,6 +184,11 @@ public class DetailActivity extends AppCompatActivity {
                             Log.d(TAG + "ALL", msgList.get(i).key);
                             Log.e(TAG + "ALL", "la cle ?"+db.msgDao().getKey(msgList.get(i).nameReceiver));
                         }*/
+                        for (int i = 0; i < msgList.size(); i++) {
+                            Toast.makeText(getBaseContext(), "la cle ? "+db.msgDao().getKey(msgList.get(i).nameReceiver), Toast.LENGTH_SHORT).show();
+                        }
+
+
 
                         smsKEY.sendTextMessage(phone, null, "MY_APP_KEY "/*TODO recuperer la cle de la BD*/, null, null);
                         break;
