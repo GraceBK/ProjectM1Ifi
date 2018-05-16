@@ -35,6 +35,7 @@ public class MsgViewModel extends AndroidViewModel {
         //msgList = (LiveData<List<Msg>>) db.msgDao().getAllMsgByNumber("0680728051");
     }
 
+    // TODO : methode a revoir possibilite de l'utiliser deans la suite en redefinissant la liste
     @SuppressLint("StaticFieldLeak")
     public LiveData<List<Msg>> getMsgByPhone(final String phone) {
         Msg msg = new Msg();

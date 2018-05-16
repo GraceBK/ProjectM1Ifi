@@ -20,8 +20,8 @@ public interface MsgDao {
     @Query("SELECT * FROM Msg WHERE numero_receiver = :phone")
     List<Msg> getAllMsgByNumber(String phone);
 
-    /*@Query("SELECT cle FROM Msg WHERE numero_receiver = :phone AND ")
-    List<Msg> getKey(String phone, String id_sms);*/
+    @Query("SELECT cle FROM Msg WHERE name_receiver = :id_sms")
+    String getKey(String id_sms);
 
     @Query("SELECT * FROM Msg")
     LiveData<List<Msg>> getAll();
