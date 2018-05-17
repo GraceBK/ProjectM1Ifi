@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Objects;
 
 import boukou.grace.projectm1ifi.db.room_db.Msg;
-import boukou.grace.projectm1ifi.java_files.MySms;
 
 /**
  * boukou.grace.projectm1ifi
@@ -44,10 +43,10 @@ public class MsgAdapter extends RecyclerView.Adapter {
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view;
         if (viewType == VIEW_MESSAGE_SENT) {
-            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.send_item, parent, false);
+            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.detail_item, parent, false);
             return new MsgAdapter.MySentSmsViewHolder(view);
         } else if (viewType == VIEW_MESSAGE_RECEIVED) {
-            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.receive_item, parent, false);
+            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.detail_item, parent, false);
             return new MsgAdapter.MyReceivedSmsViewHolder(view);
         }
         return null;
@@ -84,7 +83,7 @@ public class MsgAdapter extends RecyclerView.Adapter {
         MySentSmsViewHolder(View itemView) {
             super(itemView);
             sms = itemView.findViewById(R.id.edit_txt_sms_send);
-            time = itemView.findViewById(R.id.edit_txt_time_send);
+//            time = itemView.findViewById(R.id.edit_txt_time_send);
         }
 
         void bind(Msg msg2) {
@@ -100,7 +99,7 @@ public class MsgAdapter extends RecyclerView.Adapter {
         MyReceivedSmsViewHolder(View itemView) {
             super(itemView);
             sms = itemView.findViewById(R.id.edit_txt_sms_send);
-            time = itemView.findViewById(R.id.edit_txt_time_send);
+//            time = itemView.findViewById(R.id.edit_txt_time_send);
         }
 
         void bind(Msg msg2) {

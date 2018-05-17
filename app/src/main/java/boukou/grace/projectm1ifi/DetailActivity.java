@@ -99,10 +99,22 @@ public class DetailActivity extends AppCompatActivity {
         mySmsRecycler.setLayoutManager(new LinearLayoutManager(this));
 
         adapter = new MsgAdapter(msgList);
-        for (int i = 0; i < msgList.size(); i++) {
+       for (int i = 0; i < msgList.size(); i++) {
             Log.d(TAG + "ALL", msgList.get(i).toString());
             Log.d(TAG + "ALL", msgList.get(i).key);
+       //     Log.e(TAG + "ALL", "la cle ?"+db.msgDao().getKey(msgList.get(i).nameReceiver));
+         //   Log.e(TAG + "ALL", "la cle ?"+ msgList.get(i).key);
+           // Log.e(TAG + "ALL", "TAILLE = "+ msgList.size());
         }
+
+        //String cle = msgList.get(msgList.size()).key;
+
+        Log.e(TAG + "ALL", "cle=");
+        Log.e(TAG + "ALL", "taille="+ msgList.size());
+//*/
+        //final int taille = msgList.size();
+
+        //final String cle = db.msgDao().getKey(msgList.get(taille).nameReceiver);
 
         mySmsRecycler.smoothScrollToPosition(msgList.size());
         mySmsRecycler.setAdapter(adapter);
@@ -167,8 +179,18 @@ public class DetailActivity extends AppCompatActivity {
                         Toast.makeText(getBaseContext(), "SMS livré", Toast.LENGTH_SHORT).show();
                         SmsManager smsKEY = SmsManager.getDefault();
                         // TODO : send the key message
-                        Log.e("SEND KEY", "la cle ?");
-                        //smsKEY.sendTextMessage(phone, null, "Cesar Password = " + cle, null, null);
+                        /*for (int i = 0; i < msgList.size(); i++) {
+                            Log.d(TAG + "ALL", msgList.get(i).toString());
+                            Log.d(TAG + "ALL", msgList.get(i).key);
+                            Log.e(TAG + "ALL", "la cle ?"+db.msgDao().getKey(msgList.get(i).nameReceiver));
+                        }*/
+                        for (int i = 0; i < msgList.size(); i++) {
+                            Toast.makeText(getBaseContext(), "la cle ? "+db.msgDao().getKey(msgList.get(i).nameReceiver), Toast.LENGTH_SHORT).show();
+                        }
+
+
+
+                        smsKEY.sendTextMessage(phone, null, "MY_APP_KEY "/*TODO recuperer la cle de la BD*/, null, null);
                         break;
                     case Activity.RESULT_CANCELED:
                         // TODO : action a faire si SMS non livré
@@ -191,11 +213,12 @@ public class DetailActivity extends AppCompatActivity {
                     // TODO add requestSmsPermission() dans un try
                     sms_clair = sms.getText().toString();
                     sms_chiffre = Cesar.crypter(cle, sms_clair);
-                    sendSMS(sms_chiffre, cle);
+                    sendSMS(sms_chiffre);
                     // DONE Action envoye
                     // Deplacer cette fonction
                     //sqLiteOpenHelper.addSMS(new MySms(phone, sms_clair, ""+cle, sender));
                     Msg msg = new Msg();
+                    msg.nameReceiver = phone + "_" + msgList.size();
                     msg.phoneReceiver = phone;
                     msg.phoneSender = sender;
                     msg.sms1 = sms_chiffre;
@@ -213,6 +236,9 @@ public class DetailActivity extends AppCompatActivity {
                         }
                     }.execute(msg);
                     sms.setText("");
+
+
+
                 }
             }
         });
@@ -233,7 +259,7 @@ public class DetailActivity extends AppCompatActivity {
         }
     }
 
-    protected void sendSMS(String msg, int cle) {
+    protected void sendSMS(String msg) {
         try {
             String SENT = "SMS_SENT";
             String DELIVERED = "SMS_DELIVERED";
@@ -267,7 +293,7 @@ public class DetailActivity extends AppCompatActivity {
             }, new IntentFilter(DELIVERED));
 */
             SmsManager smsManager = SmsManager.getDefault();
-            smsManager.sendTextMessage(phone, null, "MY_APP " + Cesar.crypter(cle, msg), sentPendingIntent, deliveredPendingIntent);
+            smsManager.sendTextMessage(phone, null, "MY_APP_SMS " + msg, sentPendingIntent, deliveredPendingIntent);
             // Toast.makeText(getApplicationContext(), "SMS envoye.", Toast.LENGTH_LONG).show();
         } catch (Exception e) {
             // Toast.makeText(getApplicationContext(), "Envoie faild. Verifier les permissions.", Toast.LENGTH_LONG).show();
