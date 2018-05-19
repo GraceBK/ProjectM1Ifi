@@ -20,7 +20,7 @@ public class MsgAdapter extends RecyclerView.Adapter {
 
     private List<Msg> msgList;
 
-    public MsgAdapter(List<Msg> msgList) {
+    MsgAdapter(List<Msg> msgList) {
         this.msgList = msgList;
     }
 
@@ -33,7 +33,6 @@ public class MsgAdapter extends RecyclerView.Adapter {
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        //Msg msg = msgList.get(position);
         ((MsgAdapter.MySentSmsViewHolder) holder).bind(msgList.get(position));
     }
 
@@ -63,7 +62,6 @@ public class MsgAdapter extends RecyclerView.Adapter {
             sms = itemView.findViewById(R.id.edit_txt_sms_send);
             status_sms = itemView.findViewById(R.id.tv_sms_status);
             status_key = itemView.findViewById(R.id.tv_key_status);
-//            time = itemView.findViewById(R.id.edit_txt_time_send);
         }
 
         void bind(Msg msg2) {

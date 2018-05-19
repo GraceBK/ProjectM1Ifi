@@ -22,34 +22,12 @@ public class MsgViewModel extends AndroidViewModel {
     private AppDatabase db;
 
     private LiveData<List<Msg>> msgList;
-    private LiveData<List<Msg>> msgListByPhone;
 
     public MsgViewModel(@NonNull Application application) {
         super(application);
 
         db = AppDatabase.getDatabase(this.getApplication());
         msgList = db.msgDao().getAll();
-        // msgListByPhone = db.msgDao().getAllMsgByNumber()
-        //msgListByPhone = Transformations.switchMap(fil)
-        //msgList = db.msgDao().getAllMsgByNumber("0680728051");
-        //msgList = (LiveData<List<Msg>>) db.msgDao().getAllMsgByNumber("0680728051");
-    }
-
-    // TODO : methode a revoir possibilite de l'utiliser deans la suite en redefinissant la liste
-    @SuppressLint("StaticFieldLeak")
-    public LiveData<List<Msg>> getMsgByPhone(final String phone) {
-        Msg msg = new Msg();
-        new AsyncTask<Msg, Void, Void>() {
-
-            @Override
-            protected Void doInBackground(Msg... msgs) {
-                //for (Msg msg1 : msgs) {
-                db.msgDao().getAllMsgByNumber(phone);
-                //}
-                return null;
-            }
-        }.execute(msg);
-        return msgListByPhone;
     }
 
     public void update(List<Msg> msgs) {
@@ -78,7 +56,4 @@ public class MsgViewModel extends AndroidViewModel {
         return msgList;
     }
 
-    public LiveData<List<Msg>> getMsgListByPhone() {
-        return msgListByPhone;
-    }
 }

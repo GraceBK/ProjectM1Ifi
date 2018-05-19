@@ -72,12 +72,6 @@ public class MainActivity extends AppCompatActivity {
                 adapter.update(rContacts);
             }
         });
-        /*viewModel.getContactList().observe(this, new Observer<List<RContact>>() {
-            @Override
-            public void onChanged(@Nullable List<RContact> rContacts) {
-                adapter.update(rContacts);
-            }
-        });*/
         //viewModel.addSms(sms1.nameReceiver, sms1.phoneReceiver, sms1.sms1, sms1.key);
 
         FloatingActionButton fab = findViewById(R.id.fab);

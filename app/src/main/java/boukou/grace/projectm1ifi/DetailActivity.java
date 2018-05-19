@@ -32,8 +32,6 @@ import boukou.grace.projectm1ifi.java_files.cesar.Cesar;
 
 public class DetailActivity extends AppCompatActivity {
 
-    // private static final int MY_PERMISSIONS_REQUEST_SEND_SMS = 0;
-
     private BroadcastReceiver sendBroadcastReceiver;
     private BroadcastReceiver deliveredBroadcastReceiver;
     String SENT = "SMS_SENT";
@@ -280,38 +278,5 @@ public class DetailActivity extends AppCompatActivity {
         //unregisterReceiver(deliveredBroadcastReceiver);
         super.onStop();
     }
-
-
-    /*// TODO : faire appel a cette methode
-    public void requestSmsPermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.SEND_SMS)) {
-                // Cela signifie que la permission a deja ete demande et l'utilisateur l'a refuse
-                // On peut aussi expliquer a l'utilisateur pourquoi
-                // cette permission est necessaire et la redemander
-            } else {
-                // Sinon demander la permission
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS}, MY_PERMISSIONS_REQUEST_SEND_SMS);
-            }
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        //super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST_SEND_SMS: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // La permission est garantie
-                } else {
-                    // La permission est refusee
-                }
-                return;
-            }
-            default:
-                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        }
-    }*/
 
 }
