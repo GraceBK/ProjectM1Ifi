@@ -99,22 +99,6 @@ public class DetailActivity extends AppCompatActivity {
         mySmsRecycler.setLayoutManager(new LinearLayoutManager(this));
 
         adapter = new MsgAdapter(msgList);
-       for (int i = 0; i < msgList.size(); i++) {
-            Log.d(TAG + "ALL", msgList.get(i).toString());
-            Log.d(TAG + "ALL", msgList.get(i).key);
-       //     Log.e(TAG + "ALL", "la cle ?"+db.msgDao().getKey(msgList.get(i).nameReceiver));
-         //   Log.e(TAG + "ALL", "la cle ?"+ msgList.get(i).key);
-           // Log.e(TAG + "ALL", "TAILLE = "+ msgList.size());
-        }
-
-        //String cle = msgList.get(msgList.size()).key;
-
-        Log.e(TAG + "ALL", "cle=");
-        Log.e(TAG + "ALL", "taille="+ msgList.size());
-//*/
-        //final int taille = msgList.size();
-
-        //final String cle = db.msgDao().getKey(msgList.get(taille).nameReceiver);
 
         mySmsRecycler.smoothScrollToPosition(msgList.size());
         mySmsRecycler.setAdapter(adapter);
@@ -124,7 +108,7 @@ public class DetailActivity extends AppCompatActivity {
         viewModel.getMsgList().observe(this, new Observer<List<Msg>>() {
             @Override
             public void onChanged(@Nullable List<Msg> msgs) {
-                //adapter.update(msgs);
+                //adapter.update(msgs, phone);
             }
         });
 
@@ -145,11 +129,27 @@ public class DetailActivity extends AppCompatActivity {
          */
         // Quand le SMS a ete envoye
         sendBroadcastReceiver = new BroadcastReceiver() {
+            @SuppressLint("StaticFieldLeak")
             @Override
             public void onReceive(Context context, Intent intent) {
                 switch (getResultCode()) {
                     case Activity.RESULT_OK:
                         Toast.makeText(getBaseContext(), "SMS envoyé", Toast.LENGTH_SHORT).show();
+                        // DONE : Le SMS est envoye je mets ajour le status des sms
+                        Msg msg = new Msg();
+                        msg.nameReceiver = phone + "_" + msgList.size();
+                        msg.status_sms = "envoye";
+
+                        new AsyncTask<Msg, Void, Void>() {
+
+                            @Override
+                            protected Void doInBackground(Msg... msgs) {
+                                for (Msg msg1 : msgs) {
+                                    db.msgDao().updateStatusSms(msg1.nameReceiver, msg1.status_sms);
+                                }
+                                return null;
+                            }
+                        }.execute(msg);
                         break;
                     case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
                         // TODO : action a faire si SMS non livré
@@ -172,25 +172,36 @@ public class DetailActivity extends AppCompatActivity {
         };
         // Quand le SMS a ete livre
         deliveredBroadcastReceiver = new BroadcastReceiver() {
+            @SuppressLint("StaticFieldLeak")
             @Override
             public void onReceive(Context context, Intent intent) {
                 switch (getResultCode()) {
                     case Activity.RESULT_OK:
                         Toast.makeText(getBaseContext(), "SMS livré", Toast.LENGTH_SHORT).show();
+                        // DONE : Le SMS est envoye je mets ajour le status des sms
+                        Msg msg = new Msg();
+                        msg.nameReceiver = phone + "_" + msgList.size();
+                        msg.status_sms = "SMS Livré";
+
+                        new AsyncTask<Msg, Void, Void>() {
+
+                            @Override
+                            protected Void doInBackground(Msg... msgs) {
+                                for (Msg msg1 : msgs) {
+                                    db.msgDao().updateStatusSms(msg1.nameReceiver, msg1.status_sms);
+                                }
+                                return null;
+                            }
+                        }.execute(msg);
                         SmsManager smsKEY = SmsManager.getDefault();
                         // TODO : send the key message
-                        /*for (int i = 0; i < msgList.size(); i++) {
-                            Log.d(TAG + "ALL", msgList.get(i).toString());
-                            Log.d(TAG + "ALL", msgList.get(i).key);
-                            Log.e(TAG + "ALL", "la cle ?"+db.msgDao().getKey(msgList.get(i).nameReceiver));
-                        }*/
                         for (int i = 0; i < msgList.size(); i++) {
-                            Toast.makeText(getBaseContext(), "la cle ? "+db.msgDao().getKey(msgList.get(i).nameReceiver), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getBaseContext(), "la cle ? "+db.msgDao().getKey(msg.nameReceiver), Toast.LENGTH_SHORT).show();
                         }
 
 
 
-                        smsKEY.sendTextMessage(phone, null, "MY_APP_KEY "/*TODO recuperer la cle de la BD*/, null, null);
+                        smsKEY.sendTextMessage(phone, null, "MY_APP_KEY "+ " ttt"/*TODO recuperer la cle de la BD*/, null, null);
                         break;
                     case Activity.RESULT_CANCELED:
                         // TODO : action a faire si SMS non livré
@@ -259,21 +270,17 @@ public class DetailActivity extends AppCompatActivity {
         }
     }
 
-    protected void sendSMS(String msg) {
+    protected boolean sendKey(String key) {
         try {
-            String SENT = "SMS_SENT";
-            String DELIVERED = "SMS_DELIVERED";
-
-            PendingIntent sentPendingIntent = PendingIntent.getBroadcast(this, 0, new Intent(SENT), 0);
-            PendingIntent deliveredPendingIntent = PendingIntent.getBroadcast(this, 0, new Intent(DELIVERED), 0);
-/*
+            SmsManager smsKEY = SmsManager.getDefault();
+            smsKEY.sendTextMessage(phone, null, "MY_APP_KEY " + key, null, null);
             // Quand le SMS a ete envoye
             registerReceiver(new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent) {
                     switch (getResultCode()) {
                         case Activity.RESULT_OK:
-                            Toast.makeText(getBaseContext(), "SMS envoye", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getBaseContext(), "Clé envoyé", Toast.LENGTH_SHORT).show();
                             break;
                     }
                 }
@@ -284,14 +291,27 @@ public class DetailActivity extends AppCompatActivity {
                 public void onReceive(Context context, Intent intent) {
                     switch (getResultCode()) {
                         case Activity.RESULT_OK:
-                            Toast.makeText(getBaseContext(), "SMS livre", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getBaseContext(), "Clé livré", Toast.LENGTH_SHORT).show();
                             SmsManager smsKEY = SmsManager.getDefault();
                             smsKEY.sendTextMessage(phone, null, "crypté avec Cesar Mot de passe = 2", null, null);
                             break;
                     }
                 }
             }, new IntentFilter(DELIVERED));
-*/
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    protected void sendSMS(String msg) {
+        try {
+            String SENT = "SMS_SENT";
+            String DELIVERED = "SMS_DELIVERED";
+
+            PendingIntent sentPendingIntent = PendingIntent.getBroadcast(this, 0, new Intent(SENT), 0);
+            PendingIntent deliveredPendingIntent = PendingIntent.getBroadcast(this, 0, new Intent(DELIVERED), 0);
+
             SmsManager smsManager = SmsManager.getDefault();
             smsManager.sendTextMessage(phone, null, "MY_APP_SMS " + msg, sentPendingIntent, deliveredPendingIntent);
             // Toast.makeText(getApplicationContext(), "SMS envoye.", Toast.LENGTH_LONG).show();
