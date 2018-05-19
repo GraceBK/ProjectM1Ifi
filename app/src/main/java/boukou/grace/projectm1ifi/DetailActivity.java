@@ -1,6 +1,5 @@
 package boukou.grace.projectm1ifi;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.PendingIntent;
@@ -10,15 +9,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -34,15 +28,11 @@ import java.util.Objects;
 
 import boukou.grace.projectm1ifi.db.room_db.AppDatabase;
 import boukou.grace.projectm1ifi.db.room_db.Msg;
-import boukou.grace.projectm1ifi.db.sqlite_db.SmsSQLiteOpenHelper;
-import boukou.grace.projectm1ifi.java_files.MySms;
 import boukou.grace.projectm1ifi.java_files.cesar.Cesar;
 
 public class DetailActivity extends AppCompatActivity {
 
-    private static final String TAG = "DetailActivity";
-
-    private static final int MY_PERMISSIONS_REQUEST_SEND_SMS = 0;
+    // private static final int MY_PERMISSIONS_REQUEST_SEND_SMS = 0;
 
     private BroadcastReceiver sendBroadcastReceiver;
     private BroadcastReceiver deliveredBroadcastReceiver;
@@ -64,7 +54,6 @@ public class DetailActivity extends AppCompatActivity {
     String sender = "sender";
 
     TextView sms;
-    TextView current_time;
 
 //    SmsSQLiteOpenHelper sqLiteOpenHelper;
 
@@ -255,30 +244,13 @@ public class DetailActivity extends AppCompatActivity {
         });
     }
 
-
-    // TODO : faire appel a cette methode
-    public void requestSmsPermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.SEND_SMS)) {
-                // Cela signifie que la permission a deja ete demande et l'utilisateur l'a refuse
-                // On peut aussi expliquer a l'utilisateur pourquoi
-                // cette permission est necessaire et la redemander
-            } else {
-                // Sinon demander la permission
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS}, MY_PERMISSIONS_REQUEST_SEND_SMS);
-            }
-        }
-    }
-
-    protected boolean sendKey(String key) {
+    protected void sendKey(String key) {
         try {
             SmsManager smsKEY = SmsManager.getDefault();
             smsKEY.sendTextMessage(phone, null, "MY_APP_KEY " + key, null, null);
-            return true;
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return false;
     }
 
     protected void sendSMS(String msg) {
@@ -293,6 +265,34 @@ public class DetailActivity extends AppCompatActivity {
             smsManager.sendTextMessage(phone, null, "MY_APP_SMS " + msg, sentPendingIntent, deliveredPendingIntent);
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        if (sendBroadcastReceiver != null || deliveredBroadcastReceiver != null) {
+            unregisterReceiver(sendBroadcastReceiver);
+            unregisterReceiver(deliveredBroadcastReceiver);
+        }
+        sendBroadcastReceiver = null;
+        deliveredBroadcastReceiver = null;
+        //unregisterReceiver(sendBroadcastReceiver);
+        //unregisterReceiver(deliveredBroadcastReceiver);
+        super.onStop();
+    }
+
+
+    /*// TODO : faire appel a cette methode
+    public void requestSmsPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.SEND_SMS)) {
+                // Cela signifie que la permission a deja ete demande et l'utilisateur l'a refuse
+                // On peut aussi expliquer a l'utilisateur pourquoi
+                // cette permission est necessaire et la redemander
+            } else {
+                // Sinon demander la permission
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS}, MY_PERMISSIONS_REQUEST_SEND_SMS);
+            }
         }
     }
 
@@ -312,19 +312,6 @@ public class DetailActivity extends AppCompatActivity {
             default:
                 super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
-    }
-
-    @Override
-    protected void onStop() {
-        if (sendBroadcastReceiver != null || deliveredBroadcastReceiver != null) {
-            unregisterReceiver(sendBroadcastReceiver);
-            unregisterReceiver(deliveredBroadcastReceiver);
-        }
-        sendBroadcastReceiver = null;
-        deliveredBroadcastReceiver = null;
-        //unregisterReceiver(sendBroadcastReceiver);
-        //unregisterReceiver(deliveredBroadcastReceiver);
-        super.onStop();
-    }
+    }*/
 
 }

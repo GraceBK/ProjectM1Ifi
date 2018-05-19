@@ -113,8 +113,9 @@ public class MySMSReceiver extends BroadcastReceiver {
         db = AppDatabase.getDatabase(context);
 //        db.msgDao().insertSms();
 
-        msg.phoneReceiver = smsMessage.getOriginatingAddress();
+        msg.phoneReceiver = "receiver";
         msg.sms1 = smsMessage.getMessageBody().substring(11);    // sms_crypt
+        msg.phoneSender = smsMessage.getOriginatingAddress();
 
         new AsyncTask<Msg, Void, Void>() {
             @Override
@@ -144,7 +145,7 @@ public class MySMSReceiver extends BroadcastReceiver {
         db = AppDatabase.getDatabase(context);
 //        db.msgDao().insertSms();
 
-        msg.phoneReceiver = smsMessage.getOriginatingAddress();
+        /*msg.phoneReceiver = smsMessage.getOriginatingAddress();
         msg.key = smsMessage.getMessageBody().substring(11);    // sms_crypt
 
         new AsyncTask<Msg, Void, Void>() {
@@ -156,7 +157,7 @@ public class MySMSReceiver extends BroadcastReceiver {
                 return null;
             }
         }.execute(msg);
-        Log.e("SMS", msg.toString());
+        Log.e("SMS", msg.toString());*/
 
         /*ContentValues values = new ContentValues();
         values.put(DATE, smsMessage.getTimestampMillis());

@@ -56,7 +56,7 @@ class RecentAdapter extends RecyclerView.Adapter<RecentAdapter.ViewHolder> {
         ViewHolder(View itemView) {
             super(itemView);
             username = itemView.findViewById(R.id.username_or_phone_text_view);
-            status = itemView.findViewById(R.id.status_sms_text_view);
+            status = itemView.findViewById(R.id.tv_sms_status);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override

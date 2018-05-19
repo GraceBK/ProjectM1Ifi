@@ -13,6 +13,7 @@ import android.content.Context;
 public abstract class AppDatabase extends RoomDatabase {
     public abstract RContactDao rContactDao();
     public abstract MsgDao msgDao();
+    //public abstract Msg2Dao msg2Dao();
 
     private static AppDatabase INSTANCE;
 
