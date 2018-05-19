@@ -11,6 +11,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -80,6 +81,8 @@ public class DetailActivity extends AppCompatActivity {
 
 //        msgList = db.msgDao().getAllMsg();
 
+        String[] status_sms = getResources().getStringArray(R.array.status_sms);
+
 
         name = getIntent().getStringExtra("USERNAME");
         phone = getIntent().getStringExtra("PHONE");
@@ -114,18 +117,18 @@ public class DetailActivity extends AppCompatActivity {
 
 
 
-        /*
-          J'enregistre les receivers ici car dans sendSMS y a deux erreur du type:
-           * Pour l'accuse d'envoi
-                E/ActivityThread: Activity boukou.grace.projectm1ifi.DetailActivity has leaked IntentReceiver boukou.grace.projectm1ifi.DetailActivity$3@892dd21 that was originally registered here. Are you missing a call to unregisterReceiver()?
-           * Pour l'accuse de reception
-                E/ActivityThread: Activity boukou.grace.projectm1ifi.DetailActivity has leaked IntentReceiver boukou.grace.projectm1ifi.DetailActivity$2@a3f2f88 that was originally registered here. Are you missing a call to unregisterReceiver()?
-
-             Ensuite dans onStop on desinscrit les receivers de l'activite
-
-          mais pas de quoi faire planter l'APP.
-
-          SOLUTION SUR : https://stackoverflow.com/questions/9078390/intentrecieverleakedexception-are-you-missing-a-call-to-unregisterreceiver
+        /**
+         * DONE J'enregistre les receivers ici car dans sendSMS y a deux erreur du type:
+         * * Pour l'accuse d'envoi
+         *      E/ActivityThread: Activity boukou.grace.projectm1ifi.DetailActivity has leaked IntentReceiver boukou.grace.projectm1ifi.DetailActivity$3@892dd21 that was originally registered here. Are you missing a call to unregisterReceiver()?
+         * * Pour l'accuse de reception
+         *      E/ActivityThread: Activity boukou.grace.projectm1ifi.DetailActivity has leaked IntentReceiver boukou.grace.projectm1ifi.DetailActivity$2@a3f2f88 that was originally registered here. Are you missing a call to unregisterReceiver()?
+         *
+         * Ensuite dans onStop on desinscrit les receivers de l'activite
+         *
+         * mais pas de quoi faire planter l'APP.
+         *
+         * SOLUTION SUR : https://stackoverflow.com/questions/9078390/intentrecieverleakedexception-are-you-missing-a-call-to-unregisterreceiver
          */
         // Quand le SMS a ete envoye
         sendBroadcastReceiver = new BroadcastReceiver() {
@@ -138,7 +141,7 @@ public class DetailActivity extends AppCompatActivity {
                         // DONE : Le SMS est envoye je mets ajour le status des sms
                         Msg msg = new Msg();
                         msg.nameReceiver = phone + "_" + msgList.size();
-                        msg.status_sms = "envoye";
+                        msg.status_sms = status_sms[0];
 
                         new AsyncTask<Msg, Void, Void>() {
 
@@ -181,7 +184,7 @@ public class DetailActivity extends AppCompatActivity {
                         // DONE : Le SMS est envoye je mets ajour le status des sms
                         Msg msg = new Msg();
                         msg.nameReceiver = phone + "_" + msgList.size();
-                        msg.status_sms = "SMS Livré";
+                        msg.status_sms = status_sms[1];
 
                         new AsyncTask<Msg, Void, Void>() {
 
@@ -193,15 +196,12 @@ public class DetailActivity extends AppCompatActivity {
                                 return null;
                             }
                         }.execute(msg);
-                        SmsManager smsKEY = SmsManager.getDefault();
+
                         // TODO : send the key message
-                        for (int i = 0; i < msgList.size(); i++) {
-                            Toast.makeText(getBaseContext(), "la cle ? "+db.msgDao().getKey(msg.nameReceiver), Toast.LENGTH_SHORT).show();
-                        }
+                        sendKey(db.msgDao().getKey(msg.nameReceiver));
 
+                        Toast.makeText(getBaseContext(), "la cle ? "+db.msgDao().getKey(msg.nameReceiver), Toast.LENGTH_SHORT).show();
 
-
-                        smsKEY.sendTextMessage(phone, null, "MY_APP_KEY "+ " ttt"/*TODO recuperer la cle de la BD*/, null, null);
                         break;
                     case Activity.RESULT_CANCELED:
                         // TODO : action a faire si SMS non livré
@@ -274,30 +274,7 @@ public class DetailActivity extends AppCompatActivity {
         try {
             SmsManager smsKEY = SmsManager.getDefault();
             smsKEY.sendTextMessage(phone, null, "MY_APP_KEY " + key, null, null);
-            // Quand le SMS a ete envoye
-            registerReceiver(new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, Intent intent) {
-                    switch (getResultCode()) {
-                        case Activity.RESULT_OK:
-                            Toast.makeText(getBaseContext(), "Clé envoyé", Toast.LENGTH_SHORT).show();
-                            break;
-                    }
-                }
-            }, new IntentFilter(SENT));
-            // Quand le SMS a ete livre
-            registerReceiver(new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, Intent intent) {
-                    switch (getResultCode()) {
-                        case Activity.RESULT_OK:
-                            Toast.makeText(getBaseContext(), "Clé livré", Toast.LENGTH_SHORT).show();
-                            SmsManager smsKEY = SmsManager.getDefault();
-                            smsKEY.sendTextMessage(phone, null, "crypté avec Cesar Mot de passe = 2", null, null);
-                            break;
-                    }
-                }
-            }, new IntentFilter(DELIVERED));
+            return true;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -314,9 +291,7 @@ public class DetailActivity extends AppCompatActivity {
 
             SmsManager smsManager = SmsManager.getDefault();
             smsManager.sendTextMessage(phone, null, "MY_APP_SMS " + msg, sentPendingIntent, deliveredPendingIntent);
-            // Toast.makeText(getApplicationContext(), "SMS envoye.", Toast.LENGTH_LONG).show();
         } catch (Exception e) {
-            // Toast.makeText(getApplicationContext(), "Envoie faild. Verifier les permissions.", Toast.LENGTH_LONG).show();
             e.printStackTrace();
         }
     }
