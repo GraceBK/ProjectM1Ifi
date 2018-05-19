@@ -98,6 +98,13 @@ public class DetailActivity extends AppCompatActivity {
 
         //smsList = sqLiteOpenHelper.getSmsByPhoneNumber(phone);
 
+        Msg msg = new Msg();
+        msg.nameReceiver = phone + "_" + msgList.size();
+        msg.phoneReceiver = phone;
+
+
+
+
         mySmsRecycler = findViewById(R.id.container_sms);
         mySmsRecycler.setLayoutManager(new LinearLayoutManager(this));
 
@@ -111,7 +118,7 @@ public class DetailActivity extends AppCompatActivity {
         viewModel.getMsgList().observe(this, new Observer<List<Msg>>() {
             @Override
             public void onChanged(@Nullable List<Msg> msgs) {
-                //adapter.update(msgs, phone);
+                adapter.update(msgs, phone);
             }
         });
 
@@ -139,8 +146,6 @@ public class DetailActivity extends AppCompatActivity {
                     case Activity.RESULT_OK:
                         Toast.makeText(getBaseContext(), "SMS envoyé", Toast.LENGTH_SHORT).show();
                         // DONE : Le SMS est envoye je mets ajour le status des sms
-                        Msg msg = new Msg();
-                        msg.nameReceiver = phone + "_" + msgList.size();
                         msg.status_sms = status_sms[0];
 
                         new AsyncTask<Msg, Void, Void>() {
@@ -182,8 +187,6 @@ public class DetailActivity extends AppCompatActivity {
                     case Activity.RESULT_OK:
                         Toast.makeText(getBaseContext(), "SMS livré", Toast.LENGTH_SHORT).show();
                         // DONE : Le SMS est envoye je mets ajour le status des sms
-                        Msg msg = new Msg();
-                        msg.nameReceiver = phone + "_" + msgList.size();
                         msg.status_sms = status_sms[1];
 
                         new AsyncTask<Msg, Void, Void>() {
@@ -228,9 +231,6 @@ public class DetailActivity extends AppCompatActivity {
                     // DONE Action envoye
                     // Deplacer cette fonction
                     //sqLiteOpenHelper.addSMS(new MySms(phone, sms_clair, ""+cle, sender));
-                    Msg msg = new Msg();
-                    msg.nameReceiver = phone + "_" + msgList.size();
-                    msg.phoneReceiver = phone;
                     msg.phoneSender = sender;
                     msg.sms1 = sms_chiffre;
                     msg.sms2 = sms_clair;

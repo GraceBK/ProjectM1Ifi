@@ -52,6 +52,8 @@ public class MySMSReceiver extends BroadcastReceiver {
 
     private AppDatabase db;
 
+    Msg msg = new Msg();
+
     @Override
     public void onReceive(Context context, Intent intent) {
         // TODO: This method is called when the BroadcastReceiver is receiving
@@ -109,9 +111,8 @@ public class MySMSReceiver extends BroadcastReceiver {
     public void addSmsCodeToDBApp(Context context/*, ContentResolver contentResolver*/, SmsMessage smsMessage) {
 
         db = AppDatabase.getDatabase(context);
-        db.msgDao().insertSms();
+//        db.msgDao().insertSms();
 
-        Msg msg = new Msg();
         msg.phoneReceiver = smsMessage.getOriginatingAddress();
         msg.sms1 = smsMessage.getMessageBody().substring(11);    // sms_crypt
 
@@ -141,9 +142,8 @@ public class MySMSReceiver extends BroadcastReceiver {
     public void addSmsCleToDBApp(Context context, SmsMessage smsMessage) {
 
         db = AppDatabase.getDatabase(context);
-        db.msgDao().insertSms();
+//        db.msgDao().insertSms();
 
-        Msg msg = new Msg();
         msg.phoneReceiver = smsMessage.getOriginatingAddress();
         msg.key = smsMessage.getMessageBody().substring(11);    // sms_crypt
 
@@ -151,7 +151,7 @@ public class MySMSReceiver extends BroadcastReceiver {
             @Override
             protected Void doInBackground(Msg... msgs) {
                 for (Msg msg1 : msgs) {
-                    db.msgDao().insertSms(msg1);
+                    db.msgDao().updateKeySms(msg1.nameReceiver, msg1.key);
                 }
                 return null;
             }
