@@ -41,12 +41,13 @@ public class MsgAdapter extends RecyclerView.Adapter {
         return msgList.size();
     }
 
-    public void update(List<Msg> msgs, String phoneReceiver) {
-        for (int i = 0; i < this.msgList.size(); i++) {
+    public void update(List<Msg> msgs) {
+        /*for (int i = 0; i < this.msgList.size(); i++) {
             if (this.msgList.get(i).phoneReceiver.equals(phoneReceiver)) {
                 this.msgList = msgs;
             }
-        }
+        }*/
+        this.msgList = msgs;
         notifyDataSetChanged();
     }
 

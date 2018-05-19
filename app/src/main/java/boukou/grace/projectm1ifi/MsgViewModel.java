@@ -4,6 +4,8 @@ import android.annotation.SuppressLint;
 import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MutableLiveData;
+import android.arch.lifecycle.Transformations;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 
@@ -22,12 +24,16 @@ public class MsgViewModel extends AndroidViewModel {
     private AppDatabase db;
 
     private LiveData<List<Msg>> msgList;
+    private LiveData<List<Msg>> msgListByPhone;
+    private LiveData<String> filterLiveData = new MutableLiveData<>();
 
     public MsgViewModel(@NonNull Application application) {
         super(application);
 
         db = AppDatabase.getDatabase(this.getApplication());
         msgList = db.msgDao().getAll();
+        /*msgListByPhone = Transformations.switchMap(filterLiveData,
+                p -> )*/
     }
 
     public void update(List<Msg> msgs) {
@@ -53,7 +59,13 @@ public class MsgViewModel extends AndroidViewModel {
     }
 
     public LiveData<List<Msg>> getMsgList() {
+//        System.out.println("==========>"+msgList);
         return msgList;
+    }
+
+    public LiveData<List<Msg>> getMsgListByPhone() {
+//        System.out.println("==========>"+msgList);
+        return msgListByPhone;
     }
 
 }

@@ -55,6 +55,7 @@ public class DetailActivity extends AppCompatActivity {
 
 //    SmsSQLiteOpenHelper sqLiteOpenHelper;
 
+    @SuppressLint("StaticFieldLeak")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,6 +77,7 @@ public class DetailActivity extends AppCompatActivity {
 
         getSupportActionBar().setTitle(name);
         msgList = db.msgDao().getAllMsgByNumber(phone);
+        Log.e("GGG", ""+msgList.size());
 
         sms = findViewById(R.id.edit_txt_send);
         //current_time = findViewById(R.id.e);
@@ -102,11 +104,21 @@ public class DetailActivity extends AppCompatActivity {
 
 
         viewModel = ViewModelProviders.of(this).get(MsgViewModel.class);
-        viewModel.getMsgList().observe(this, new Observer<List<Msg>>() {
-            @Override
-            public void onChanged(@Nullable List<Msg> msgs) {
-                adapter.update(msgs, phone);
-            }
+        viewModel.getMsgList().observe(this, msgs -> {
+            new AsyncTask<Msg, Void, Void>() {
+
+                @Override
+                protected Void doInBackground(Msg... msgs) {
+                    final List<Msg> msgs1 = db.msgDao().getAllMsgByNumber(phone);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            adapter.update(msgs1);
+                        }
+                    });
+                    return null;
+                }
+            }.execute(msg);
         });
 
 
@@ -204,40 +216,36 @@ public class DetailActivity extends AppCompatActivity {
         registerReceiver(deliveredBroadcastReceiver, new IntentFilter(DELIVERED));
 
         FloatingActionButton fab = findViewById(R.id.fab_send);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @SuppressLint("StaticFieldLeak")
-            @Override
-            public void onClick(View view) {
-                Log.e("rrrr", sms.getText().toString() + " " + phone);
-                if (!sms.getText().toString().isEmpty()) {
-                    int cle = Cesar.generateKey();
-                    // TODO add requestSmsPermission() dans un try
-                    sms_clair = sms.getText().toString();
-                    sms_chiffre = Cesar.crypter(cle, sms_clair);
-                    sendSMS(sms_chiffre);
-                    // DONE Action envoye
-                    // Deplacer cette fonction
-                    //sqLiteOpenHelper.addSMS(new MySms(phone, sms_clair, ""+cle, sender));
-                    msg.phoneSender = sender;
-                    msg.sms1 = sms_chiffre;
-                    msg.sms2 = sms_clair;
-                    msg.key = ""+cle;
+        fab.setOnClickListener(view -> {
+         //   Log.e("rrrr", sms.getText().toString() + " " + phone);
+            if (!sms.getText().toString().isEmpty()) {
+                int cle = Cesar.generateKey();
+                // TODO add requestSmsPermission() dans un try
+                sms_clair = sms.getText().toString();
+                sms_chiffre = Cesar.crypter(cle, sms_clair);
+                sendSMS(sms_chiffre);
+                // DONE Action envoye
+                // Deplacer cette fonction
+                //sqLiteOpenHelper.addSMS(new MySms(phone, sms_clair, ""+cle, sender));
+                msg.phoneSender = sender;
+                msg.sms1 = sms_chiffre;
+                msg.sms2 = sms_clair;
+                msg.key = ""+cle;
 
-                    new AsyncTask<Msg, Void, Void>() {
+                new AsyncTask<Msg, Void, Void>() {
 
-                        @Override
-                        protected Void doInBackground(Msg... msgs) {
-                            for (Msg msg1 : msgs) {
-                                db.msgDao().insertSms(msg1);
-                            }
-                            return null;
+                    @Override
+                    protected Void doInBackground(Msg... msgs) {
+                        for (Msg msg1 : msgs) {
+                            db.msgDao().insertSms(msg1);
                         }
-                    }.execute(msg);
-                    sms.setText("");
+                        return null;
+                    }
+                }.execute(msg);
+                sms.setText("");
 
 
 
-                }
             }
         });
     }

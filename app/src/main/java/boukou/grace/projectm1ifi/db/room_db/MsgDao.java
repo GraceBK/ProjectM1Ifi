@@ -24,7 +24,7 @@ public interface MsgDao {
     @Query("SELECT cle FROM Msg WHERE name_receiver = :id_sms")
     String getKey(String id_sms);
 
-    @Query("SELECT * FROM Msg")
+    @Query("SELECT * FROM Msg WHERE numero_sender = 'sender'")
     LiveData<List<Msg>> getAll();
 
     @Query("UPDATE Msg SET status_sms = :statusSms WHERE name_receiver = :id_sms")
