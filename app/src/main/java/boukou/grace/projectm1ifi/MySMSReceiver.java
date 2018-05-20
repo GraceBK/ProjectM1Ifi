@@ -1,7 +1,6 @@
 package boukou.grace.projectm1ifi;
 
 import android.annotation.SuppressLint;
-import android.arch.persistence.room.ColumnInfo;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -21,8 +20,8 @@ import java.util.List;
 import java.util.Objects;
 
 import boukou.grace.projectm1ifi.db.room_db.AppDatabase;
-import boukou.grace.projectm1ifi.db.room_db.Msg;
-import boukou.grace.projectm1ifi.db.room_db.RContact;
+import boukou.grace.projectm1ifi.db.room_db.Msg2;
+import boukou.grace.projectm1ifi.java_files.cesar.Cesar;
 
 
 public class MySMSReceiver extends BroadcastReceiver {
@@ -52,7 +51,7 @@ public class MySMSReceiver extends BroadcastReceiver {
 
     private AppDatabase db;
 
-    Msg msg = new Msg();
+    Msg2 msg = new Msg2();
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -86,6 +85,7 @@ public class MySMSReceiver extends BroadcastReceiver {
                         // TODO Action de sauvegarder la cle dans la DB
                         //addSmsToDatabase(contentResolver, messages[0]);
                         addSmsCleToDBApp(context, messages[0]);
+                        decode(context);
                     }
                 }
             }
@@ -94,34 +94,20 @@ public class MySMSReceiver extends BroadcastReceiver {
 //        throw new UnsupportedOperationException("Not yet implemented");
     }
 
-    /*@ColumnInfo(name = "name_receiver")
-    public String nameReceiver;
-
-
-    @ColumnInfo(name = "numero_sender")
-    public String phoneSender;
-
-    @ColumnInfo(name = "sms_decrypt")
-    public String sms2;
-
-    @ColumnInfo(name = "cle")
-    public String key;*/
-
     @SuppressLint("StaticFieldLeak")
     public void addSmsCodeToDBApp(Context context/*, ContentResolver contentResolver*/, SmsMessage smsMessage) {
 
         db = AppDatabase.getDatabase(context);
-//        db.msgDao().insertSms();
 
         msg.phoneReceiver = "receiver";
         msg.sms1 = smsMessage.getMessageBody().substring(11);    // sms_crypt
         msg.phoneSender = smsMessage.getOriginatingAddress();
 
-        new AsyncTask<Msg, Void, Void>() {
+        new AsyncTask<Msg2, Void, Void>() {
             @Override
-            protected Void doInBackground(Msg... msgs) {
-                for (Msg msg1 : msgs) {
-                    db.msgDao().insertSms(msg1);
+            protected Void doInBackground(Msg2... msgs) {
+                for (Msg2 msg1 : msgs) {
+                    db.msg2Dao().insertSms_2(msg1);
                 }
                 return null;
             }
@@ -143,21 +129,20 @@ public class MySMSReceiver extends BroadcastReceiver {
     public void addSmsCleToDBApp(Context context, SmsMessage smsMessage) {
 
         db = AppDatabase.getDatabase(context);
-//        db.msgDao().insertSms();
 
-        /*msg.phoneReceiver = smsMessage.getOriginatingAddress();
+        msg.phoneReceiver = smsMessage.getOriginatingAddress();
         msg.key = smsMessage.getMessageBody().substring(11);    // sms_crypt
 
-        new AsyncTask<Msg, Void, Void>() {
+        new AsyncTask<Msg2, Void, Void>() {
             @Override
-            protected Void doInBackground(Msg... msgs) {
-                for (Msg msg1 : msgs) {
-                    db.msgDao().updateKeySms(msg1.nameReceiver, msg1.key);
+            protected Void doInBackground(Msg2... msgs) {
+                for (Msg2 msg1 : msgs) {
+                    db.msg2Dao().updateKeySms_2(msg1.nameReceiver, msg1.key);
                 }
                 return null;
             }
         }.execute(msg);
-        Log.e("SMS", msg.toString());*/
+        Log.e("SMS", msg.toString());
 
         /*ContentValues values = new ContentValues();
         values.put(DATE, smsMessage.getTimestampMillis());
@@ -167,6 +152,15 @@ public class MySMSReceiver extends BroadcastReceiver {
         values.put(SEEN, MESSAGE_IS_NOT_SEEN);
 
         contentResolver.insert(Uri.parse(SMS_URI), values);*/
+    }
+
+
+    public void decode(Context context) {
+        db = AppDatabase.getDatabase(context);
+        if (msg.key != null || msg.sms1 != null) {
+            msg.sms2 = "COUCOU";//Cesar.decrypter(Integer.parseInt(msg.key), msg.sms1);
+        }
+        Log.e("SMS", msg.toString());
     }
 
 

@@ -16,28 +16,28 @@ import java.util.List;
 @Dao
 public interface Msg2Dao {
     @Query("SELECT * FROM Msg2")
-    List<Msg> getAllMsg2();
+    List<Msg> getAllMsg_2();
 
     @Query("SELECT * FROM Msg2 WHERE numero_receiver = :phone")
-    List<Msg> getAllMsg2ByNumber(String phone);
+    List<Msg> getAllMsgByNumber_2(String phone);
 
     @Query("SELECT cle FROM Msg2 WHERE name_receiver = :id_sms")
-    String getKey(String id_sms);
+    String getKey_2(String id_sms);
 
     @Query("SELECT * FROM Msg2")
     LiveData<List<Msg>> getAll();
 
     @Query("UPDATE Msg2 SET status_sms = :statusSms WHERE name_receiver = :id_sms")
-    int updateStatusSms(String id_sms, String statusSms);
+    int updateStatusSms_2(String id_sms, String statusSms);
 
     @Query("UPDATE Msg2 SET cle = :cle WHERE name_receiver = :id_sms")
-    int updateKeySms(String id_sms, String cle);
+    int updateKeySms_2(String id_sms, String cle);
 
     //@Query("SELECT sms.name_receiver, sms.numero_receiver FROM sms WHERE uid IN (:smsIds)")
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    void insertSms(Msg2... msgs);
+    void insertSms_2(Msg2... msgs);
 
     @Update
-    void updateStatusSms(Msg2... msgs);
+    void updateStatusSms_2(Msg2... msgs);
 }

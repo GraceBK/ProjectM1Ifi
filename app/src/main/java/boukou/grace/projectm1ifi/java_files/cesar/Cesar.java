@@ -20,8 +20,7 @@ public class Cesar {
     public static String crypter(int cle, String msg) {
         StringBuilder res = new StringBuilder();
         char c;
-        for (int i = 0; i < msg.length(); ++
-                i) {
+        for (int i = 0; i < msg.length(); ++i) {
             c = msg.charAt(i);
             if (c >= 'a' && c <= 'z') {
                 c = (char) (c + cle);
