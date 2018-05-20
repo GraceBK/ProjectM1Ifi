@@ -71,17 +71,28 @@ public class MySMSReceiver extends BroadcastReceiver {
                 if (messages.length > -1) {
                     final String messageBody = messages[0].getMessageBody();
                     final String phoneNumber = messages[0].getDisplayOriginatingAddress();
+                    final String uid = messages[0].getStatus()+"";
+
+                    /*
+                    getDisplayOriginatingAddress()  : numero de tel
+                     */
+
+                    Toast.makeText(context, "UID : " + uid, Toast.LENGTH_LONG).show();
+
+                    //Log.e("UID", ""+uid);
+                    String parts[] = messageBody.substring(11).split(" ", 2);
+                    Log.e("UID", String.format("id: %s, sms: %s", parts[0], parts[1]));
 
                     Toast.makeText(context, "Expediteur : " + phoneNumber, Toast.LENGTH_LONG).show();
 
                     if (messageBody.contains("MY_APP_SMS ")) {
-                        Toast.makeText(context, "Message : " + messageBody, Toast.LENGTH_LONG).show();
+                        //Toast.makeText(context, "Message : " + messageBody, Toast.LENGTH_LONG).show();
                         // TODO Action de sauvegarder dans la DB
                         //addSmsToDatabase(contentResolver, messages[0]);
                         addSmsCodeToDBApp(context, messages[0]);
                     }
                     if (messageBody.contains("MY_APP_KEY ")) {
-                        Toast.makeText(context, "Cle = " + messageBody, Toast.LENGTH_LONG).show();
+                        //Toast.makeText(context, "Cle = " + messageBody, Toast.LENGTH_LONG).show();
                         // TODO Action de sauvegarder la cle dans la DB
                         //addSmsToDatabase(contentResolver, messages[0]);
                         addSmsCleToDBApp(context, messages[0]);
@@ -96,11 +107,13 @@ public class MySMSReceiver extends BroadcastReceiver {
 
     @SuppressLint("StaticFieldLeak")
     public void addSmsCodeToDBApp(Context context/*, ContentResolver contentResolver*/, SmsMessage smsMessage) {
-
         db = AppDatabase.getDatabase(context);
 
+        String parts[] = smsMessage.getMessageBody().substring(11).split(" ", 2);
+
+        msg.nameReceiver = parts[0];
         msg.phoneReceiver = "receiver";
-        msg.sms1 = smsMessage.getMessageBody().substring(11);    // sms_crypt
+        msg.sms1 = parts[1];    // sms_crypt
         msg.phoneSender = smsMessage.getOriginatingAddress();
 
         new AsyncTask<Msg2, Void, Void>() {
@@ -127,17 +140,18 @@ public class MySMSReceiver extends BroadcastReceiver {
 
     @SuppressLint("StaticFieldLeak")
     public void addSmsCleToDBApp(Context context, SmsMessage smsMessage) {
-
         db = AppDatabase.getDatabase(context);
 
+        String parts[] = smsMessage.getMessageBody().substring(11).split(" ", 2);
+
         msg.phoneReceiver = smsMessage.getOriginatingAddress();
-        msg.key = smsMessage.getMessageBody().substring(11);    // sms_crypt
+        msg.key = parts[1];    // sms_crypt
 
         new AsyncTask<Msg2, Void, Void>() {
             @Override
             protected Void doInBackground(Msg2... msgs) {
                 for (Msg2 msg1 : msgs) {
-                    db.msg2Dao().updateKeySms_2(msg1.nameReceiver, msg1.key);
+                    db.msg2Dao().updateKeySms_22(parts[0], msg1.key);
                 }
                 return null;
             }
@@ -156,11 +170,39 @@ public class MySMSReceiver extends BroadcastReceiver {
 
 
     public void decode(Context context) {
-        db = AppDatabase.getDatabase(context);
+        /*db = AppDatabase.getDatabase(context);
         if (msg.key != null || msg.sms1 != null) {
             msg.sms2 = "COUCOU";//Cesar.decrypter(Integer.parseInt(msg.key), msg.sms1);
         }
-        Log.e("SMS", msg.toString());
+        Log.e("SMS", msg.toString());*/
+    }
+
+    public void deleteSMSFromSMSDB(Context context, String message, String number) {
+        try {
+            Log.i("INFO DB SMS", "Suppression du SMS");
+            Uri uriSMS = Uri.parse("content://sms/inbox");
+            Cursor cursor = context.getContentResolver().query(uriSMS, new String[]{"_id", "thread_id", "address", "person", "date", "body"},
+                    null, null, null);
+
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    long id = cursor.getLong(0);
+                    long threadId = cursor.getLong(1);
+                    String address = cursor.getString(2);
+                    String body = cursor.getString(5);
+                    String creator = cursor.getString(5); // Optionnel
+                    if (message.equals(body) && address.equals(number)) {
+                        Log.i("INFO DB SMS", "Suppression du SMS: " + threadId);
+                        context.getContentResolver().delete(
+                                Uri.parse("content://sms/" + id), null, null
+                        );
+                    }
+                } while (cursor.moveToNext());
+            }
+
+        } catch (Exception e) {
+            Log.e("ERROR DB SMS", "Ne peut pas supprimer le SMS: " + e.getMessage());
+        }
     }
 
 

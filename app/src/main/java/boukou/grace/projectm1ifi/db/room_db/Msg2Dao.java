@@ -25,13 +25,16 @@ public interface Msg2Dao {
     String getKey_2(String id_sms);
 
     @Query("SELECT * FROM Msg2")
-    LiveData<List<Msg>> getAll();
+    LiveData<List<Msg>> getAll2();
 
     @Query("UPDATE Msg2 SET status_sms = :statusSms WHERE name_receiver = :id_sms")
     int updateStatusSms_2(String id_sms, String statusSms);
 
     @Query("UPDATE Msg2 SET cle = :cle WHERE name_receiver = :id_sms")
     int updateKeySms_2(String id_sms, String cle);
+
+    @Query("UPDATE Msg2 SET cle = :cle WHERE name_receiver = :id_sms")
+    int updateKeySms_22(String id_sms, String cle);
 
     //@Query("SELECT sms.name_receiver, sms.numero_receiver FROM sms WHERE uid IN (:smsIds)")
 

@@ -46,7 +46,6 @@ public class MsgViewModel extends AndroidViewModel {
         Msg msg = new Msg();
         msg.phoneReceiver = receiver;
         msg.sms1 = msg_crypt;
-        msg.sms2 = msg_decrypt;
         msg.key = cle;
         new AsyncTask<Msg, Void, Void>() {
 

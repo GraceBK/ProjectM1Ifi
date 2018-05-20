@@ -164,6 +164,24 @@ public class DetailActivity extends AppCompatActivity {
                                 return null;
                             }
                         }.execute(msg);
+                        // TODO A supprimer
+                        // DONE : Le SMS est envoye je mets ajour le status des sms
+                        msg.status_sms = status_sms[1];
+
+                        new AsyncTask<Msg, Void, Void>() {
+
+                            @Override
+                            protected Void doInBackground(Msg... msgs) {
+                                for (Msg msg1 : msgs) {
+                                    db.msgDao().updateStatusSms(msg1.nameReceiver, msg1.status_sms);
+                                }
+                                return null;
+                            }
+                        }.execute(msg);
+
+                        // TODO : send the key message
+                        sendKey(db.msgDao().getKey(msg.nameReceiver), msg.nameReceiver);
+                        // TODO A supprimer
                         break;
                     case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
                         // TODO : action a faire si SMS non livré
@@ -207,7 +225,7 @@ public class DetailActivity extends AppCompatActivity {
                         }.execute(msg);
 
                         // TODO : send the key message
-                        sendKey(db.msgDao().getKey(msg.nameReceiver));
+                        sendKey(db.msgDao().getKey(msg.nameReceiver), msg.nameReceiver);
 
                         Toast.makeText(getBaseContext(), "la cle ? "+db.msgDao().getKey(msg.nameReceiver), Toast.LENGTH_SHORT).show();
 
@@ -227,16 +245,15 @@ public class DetailActivity extends AppCompatActivity {
          //   Log.e("rrrr", sms.getText().toString() + " " + phone);
             if (!sms.getText().toString().isEmpty()) {
                 int cle = Cesar.generateKey();
-                // TODO add requestSmsPermission() dans un try
+                // TODO Save avant de send
                 sms_clair = sms.getText().toString();
                 sms_chiffre = Cesar.crypter(cle, sms_clair);
-                sendSMS(sms_chiffre);
+                sendSMS(sms_chiffre, msg.nameReceiver);
                 // DONE Action envoye
                 // Deplacer cette fonction
                 //sqLiteOpenHelper.addSMS(new MySms(phone, sms_clair, ""+cle, sender));
                 msg.phoneSender = sender;
                 msg.sms1 = sms_chiffre;
-                msg.sms2 = sms_clair;
                 msg.key = ""+cle;
 
                 new AsyncTask<Msg, Void, Void>() {
@@ -257,16 +274,16 @@ public class DetailActivity extends AppCompatActivity {
         });
     }
 
-    protected void sendKey(String key) {
+    protected void sendKey(String key, String id_sms_send) {
         try {
             SmsManager smsKEY = SmsManager.getDefault();
-            smsKEY.sendTextMessage(phone, null, "MY_APP_KEY " + key, null, null);
+            smsKEY.sendTextMessage(phone, null, "MY_APP_KEY " + id_sms_send + " " + key, null, null);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    protected void sendSMS(String msg) {
+    protected void sendSMS(String msg, String id_sms_send) {
         try {
             String SENT = "SMS_SENT";
             String DELIVERED = "SMS_DELIVERED";
@@ -275,7 +292,7 @@ public class DetailActivity extends AppCompatActivity {
             PendingIntent deliveredPendingIntent = PendingIntent.getBroadcast(this, 0, new Intent(DELIVERED), 0);
 
             SmsManager smsManager = SmsManager.getDefault();
-            smsManager.sendTextMessage(phone, null, "MY_APP_SMS " + msg, sentPendingIntent, deliveredPendingIntent);
+            smsManager.sendTextMessage(phone, null, "MY_APP_SMS " + id_sms_send + " " + msg, sentPendingIntent, deliveredPendingIntent);
         } catch (Exception e) {
             e.printStackTrace();
         }
