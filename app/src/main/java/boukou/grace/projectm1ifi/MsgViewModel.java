@@ -4,6 +4,8 @@ import android.annotation.SuppressLint;
 import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MutableLiveData;
+import android.arch.lifecycle.Transformations;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 
@@ -23,33 +25,15 @@ public class MsgViewModel extends AndroidViewModel {
 
     private LiveData<List<Msg>> msgList;
     private LiveData<List<Msg>> msgListByPhone;
+    private LiveData<String> filterLiveData = new MutableLiveData<>();
 
     public MsgViewModel(@NonNull Application application) {
         super(application);
 
         db = AppDatabase.getDatabase(this.getApplication());
         msgList = db.msgDao().getAll();
-        // msgListByPhone = db.msgDao().getAllMsgByNumber()
-        //msgListByPhone = Transformations.switchMap(fil)
-        //msgList = db.msgDao().getAllMsgByNumber("0680728051");
-        //msgList = (LiveData<List<Msg>>) db.msgDao().getAllMsgByNumber("0680728051");
-    }
-
-    // TODO : methode a revoir possibilite de l'utiliser deans la suite en redefinissant la liste
-    @SuppressLint("StaticFieldLeak")
-    public LiveData<List<Msg>> getMsgByPhone(final String phone) {
-        Msg msg = new Msg();
-        new AsyncTask<Msg, Void, Void>() {
-
-            @Override
-            protected Void doInBackground(Msg... msgs) {
-                //for (Msg msg1 : msgs) {
-                db.msgDao().getAllMsgByNumber(phone);
-                //}
-                return null;
-            }
-        }.execute(msg);
-        return msgListByPhone;
+        /*msgListByPhone = Transformations.switchMap(filterLiveData,
+                p -> )*/
     }
 
     public void update(List<Msg> msgs) {
@@ -62,7 +46,6 @@ public class MsgViewModel extends AndroidViewModel {
         Msg msg = new Msg();
         msg.phoneReceiver = receiver;
         msg.sms1 = msg_crypt;
-        msg.sms2 = msg_decrypt;
         msg.key = cle;
         new AsyncTask<Msg, Void, Void>() {
 
@@ -75,10 +58,13 @@ public class MsgViewModel extends AndroidViewModel {
     }
 
     public LiveData<List<Msg>> getMsgList() {
+//        System.out.println("==========>"+msgList);
         return msgList;
     }
 
     public LiveData<List<Msg>> getMsgListByPhone() {
+//        System.out.println("==========>"+msgList);
         return msgListByPhone;
     }
+
 }

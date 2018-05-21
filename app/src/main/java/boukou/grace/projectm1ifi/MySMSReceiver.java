@@ -1,7 +1,6 @@
 package boukou.grace.projectm1ifi;
 
 import android.annotation.SuppressLint;
-import android.arch.persistence.room.ColumnInfo;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -21,8 +20,8 @@ import java.util.List;
 import java.util.Objects;
 
 import boukou.grace.projectm1ifi.db.room_db.AppDatabase;
-import boukou.grace.projectm1ifi.db.room_db.Msg;
-import boukou.grace.projectm1ifi.db.room_db.RContact;
+import boukou.grace.projectm1ifi.db.room_db.Msg2;
+import boukou.grace.projectm1ifi.java_files.cesar.Cesar;
 
 
 public class MySMSReceiver extends BroadcastReceiver {
@@ -52,6 +51,8 @@ public class MySMSReceiver extends BroadcastReceiver {
 
     private AppDatabase db;
 
+    Msg2 msg = new Msg2();
+
     @Override
     public void onReceive(Context context, Intent intent) {
         // TODO: This method is called when the BroadcastReceiver is receiving
@@ -70,20 +71,32 @@ public class MySMSReceiver extends BroadcastReceiver {
                 if (messages.length > -1) {
                     final String messageBody = messages[0].getMessageBody();
                     final String phoneNumber = messages[0].getDisplayOriginatingAddress();
+                    final String uid = messages[0].getStatus()+"";
+
+                    /*
+                    getDisplayOriginatingAddress()  : numero de tel
+                     */
+
+                    Toast.makeText(context, "UID : " + uid, Toast.LENGTH_LONG).show();
+
+                    //Log.e("UID", ""+uid);
+                    String parts[] = messageBody.substring(11).split(" ", 2);
+                    Log.e("UID", String.format("id: %s, sms: %s", parts[0], parts[1]));
 
                     Toast.makeText(context, "Expediteur : " + phoneNumber, Toast.LENGTH_LONG).show();
 
                     if (messageBody.contains("MY_APP_SMS ")) {
-                        Toast.makeText(context, "Message : " + messageBody, Toast.LENGTH_LONG).show();
+                        //Toast.makeText(context, "Message : " + messageBody, Toast.LENGTH_LONG).show();
                         // TODO Action de sauvegarder dans la DB
                         //addSmsToDatabase(contentResolver, messages[0]);
                         addSmsCodeToDBApp(context, messages[0]);
                     }
                     if (messageBody.contains("MY_APP_KEY ")) {
-                        Toast.makeText(context, "Cle = " + messageBody, Toast.LENGTH_LONG).show();
+                        //Toast.makeText(context, "Cle = " + messageBody, Toast.LENGTH_LONG).show();
                         // TODO Action de sauvegarder la cle dans la DB
                         //addSmsToDatabase(contentResolver, messages[0]);
                         addSmsCleToDBApp(context, messages[0]);
+                        decode(context);
                     }
                 }
             }
@@ -92,34 +105,22 @@ public class MySMSReceiver extends BroadcastReceiver {
 //        throw new UnsupportedOperationException("Not yet implemented");
     }
 
-    /*@ColumnInfo(name = "name_receiver")
-    public String nameReceiver;
-
-
-    @ColumnInfo(name = "numero_sender")
-    public String phoneSender;
-
-    @ColumnInfo(name = "sms_decrypt")
-    public String sms2;
-
-    @ColumnInfo(name = "cle")
-    public String key;*/
-
     @SuppressLint("StaticFieldLeak")
     public void addSmsCodeToDBApp(Context context/*, ContentResolver contentResolver*/, SmsMessage smsMessage) {
-
         db = AppDatabase.getDatabase(context);
-        db.msgDao().insertSms();
 
-        Msg msg = new Msg();
-        msg.phoneReceiver = smsMessage.getOriginatingAddress();
-        msg.sms1 = smsMessage.getMessageBody().substring(11);    // sms_crypt
+        String parts[] = smsMessage.getMessageBody().substring(11).split(" ", 2);
 
-        new AsyncTask<Msg, Void, Void>() {
+        msg.nameReceiver = parts[0];
+        msg.phoneReceiver = "receiver";
+        msg.sms1 = parts[1];    // sms_crypt
+        msg.phoneSender = smsMessage.getOriginatingAddress();
+
+        new AsyncTask<Msg2, Void, Void>() {
             @Override
-            protected Void doInBackground(Msg... msgs) {
-                for (Msg msg1 : msgs) {
-                    db.msgDao().insertSms(msg1);
+            protected Void doInBackground(Msg2... msgs) {
+                for (Msg2 msg1 : msgs) {
+                    db.msg2Dao().insertSms_2(msg1);
                 }
                 return null;
             }
@@ -139,19 +140,18 @@ public class MySMSReceiver extends BroadcastReceiver {
 
     @SuppressLint("StaticFieldLeak")
     public void addSmsCleToDBApp(Context context, SmsMessage smsMessage) {
-
         db = AppDatabase.getDatabase(context);
-        db.msgDao().insertSms();
 
-        Msg msg = new Msg();
+        String parts[] = smsMessage.getMessageBody().substring(11).split(" ", 2);
+
         msg.phoneReceiver = smsMessage.getOriginatingAddress();
-        msg.key = smsMessage.getMessageBody().substring(11);    // sms_crypt
+        msg.key = parts[1];    // sms_crypt
 
-        new AsyncTask<Msg, Void, Void>() {
+        new AsyncTask<Msg2, Void, Void>() {
             @Override
-            protected Void doInBackground(Msg... msgs) {
-                for (Msg msg1 : msgs) {
-                    db.msgDao().insertSms(msg1);
+            protected Void doInBackground(Msg2... msgs) {
+                for (Msg2 msg1 : msgs) {
+                    db.msg2Dao().updateKeySms_22(parts[0], msg1.key);
                 }
                 return null;
             }
@@ -166,6 +166,43 @@ public class MySMSReceiver extends BroadcastReceiver {
         values.put(SEEN, MESSAGE_IS_NOT_SEEN);
 
         contentResolver.insert(Uri.parse(SMS_URI), values);*/
+    }
+
+
+    public void decode(Context context) {
+        /*db = AppDatabase.getDatabase(context);
+        if (msg.key != null || msg.sms1 != null) {
+            msg.sms2 = "COUCOU";//Cesar.decrypter(Integer.parseInt(msg.key), msg.sms1);
+        }
+        Log.e("SMS", msg.toString());*/
+    }
+
+    public void deleteSMSFromSMSDB(Context context, String message, String number) {
+        try {
+            Log.i("INFO DB SMS", "Suppression du SMS");
+            Uri uriSMS = Uri.parse("content://sms/inbox");
+            Cursor cursor = context.getContentResolver().query(uriSMS, new String[]{"_id", "thread_id", "address", "person", "date", "body"},
+                    null, null, null);
+
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    long id = cursor.getLong(0);
+                    long threadId = cursor.getLong(1);
+                    String address = cursor.getString(2);
+                    String body = cursor.getString(5);
+                    String creator = cursor.getString(5); // Optionnel
+                    if (message.equals(body) && address.equals(number)) {
+                        Log.i("INFO DB SMS", "Suppression du SMS: " + threadId);
+                        context.getContentResolver().delete(
+                                Uri.parse("content://sms/" + id), null, null
+                        );
+                    }
+                } while (cursor.moveToNext());
+            }
+
+        } catch (Exception e) {
+            Log.e("ERROR DB SMS", "Ne peut pas supprimer le SMS: " + e.getMessage());
+        }
     }
 
 

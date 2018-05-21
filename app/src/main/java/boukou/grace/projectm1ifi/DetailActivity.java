@@ -1,6 +1,5 @@
 package boukou.grace.projectm1ifi;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.PendingIntent;
@@ -10,14 +9,11 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -33,15 +29,9 @@ import java.util.Objects;
 
 import boukou.grace.projectm1ifi.db.room_db.AppDatabase;
 import boukou.grace.projectm1ifi.db.room_db.Msg;
-import boukou.grace.projectm1ifi.db.sqlite_db.SmsSQLiteOpenHelper;
-import boukou.grace.projectm1ifi.java_files.MySms;
 import boukou.grace.projectm1ifi.java_files.cesar.Cesar;
 
 public class DetailActivity extends AppCompatActivity {
-
-    private static final String TAG = "DetailActivity";
-
-    private static final int MY_PERMISSIONS_REQUEST_SEND_SMS = 0;
 
     private BroadcastReceiver sendBroadcastReceiver;
     private BroadcastReceiver deliveredBroadcastReceiver;
@@ -63,10 +53,10 @@ public class DetailActivity extends AppCompatActivity {
     String sender = "sender";
 
     TextView sms;
-    TextView current_time;
 
 //    SmsSQLiteOpenHelper sqLiteOpenHelper;
 
+    @SuppressLint("StaticFieldLeak")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,12 +70,15 @@ public class DetailActivity extends AppCompatActivity {
 
 //        msgList = db.msgDao().getAllMsg();
 
+        String[] status_sms = getResources().getStringArray(R.array.status_sms);
+
 
         name = getIntent().getStringExtra("USERNAME");
         phone = getIntent().getStringExtra("PHONE");
 
         getSupportActionBar().setTitle(name);
         msgList = db.msgDao().getAllMsgByNumber(phone);
+        Log.e("GGG", ""+msgList.size());
 
         sms = findViewById(R.id.edit_txt_send);
         //current_time = findViewById(R.id.e);
@@ -95,61 +88,100 @@ public class DetailActivity extends AppCompatActivity {
 
         //smsList = sqLiteOpenHelper.getSmsByPhoneNumber(phone);
 
+        Msg msg = new Msg();
+        msg.nameReceiver = phone + "_" + msgList.size();
+        msg.phoneReceiver = phone;
+
+
+
+
         mySmsRecycler = findViewById(R.id.container_sms);
         mySmsRecycler.setLayoutManager(new LinearLayoutManager(this));
 
         adapter = new MsgAdapter(msgList);
-       for (int i = 0; i < msgList.size(); i++) {
-            Log.d(TAG + "ALL", msgList.get(i).toString());
-            Log.d(TAG + "ALL", msgList.get(i).key);
-       //     Log.e(TAG + "ALL", "la cle ?"+db.msgDao().getKey(msgList.get(i).nameReceiver));
-         //   Log.e(TAG + "ALL", "la cle ?"+ msgList.get(i).key);
-           // Log.e(TAG + "ALL", "TAILLE = "+ msgList.size());
-        }
-
-        //String cle = msgList.get(msgList.size()).key;
-
-        Log.e(TAG + "ALL", "cle=");
-        Log.e(TAG + "ALL", "taille="+ msgList.size());
-//*/
-        //final int taille = msgList.size();
-
-        //final String cle = db.msgDao().getKey(msgList.get(taille).nameReceiver);
 
         mySmsRecycler.smoothScrollToPosition(msgList.size());
+        /*new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mySmsRecycler.scrollToPosition(msgList.size());
+            }
+        }, 200);*/
         mySmsRecycler.setAdapter(adapter);
 
 
         viewModel = ViewModelProviders.of(this).get(MsgViewModel.class);
-        viewModel.getMsgList().observe(this, new Observer<List<Msg>>() {
-            @Override
-            public void onChanged(@Nullable List<Msg> msgs) {
-                //adapter.update(msgs);
-            }
+        viewModel.getMsgList().observe(this, msgs -> {
+            new AsyncTask<Msg, Void, Void>() {
+
+                @Override
+                protected Void doInBackground(Msg... msgs) {
+                    final List<Msg> msgs1 = db.msgDao().getAllMsgByNumber(phone);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            adapter.update(msgs1);
+                        }
+                    });
+                    return null;
+                }
+            }.execute(msg);
         });
 
 
 
-        /*
-          J'enregistre les receivers ici car dans sendSMS y a deux erreur du type:
-           * Pour l'accuse d'envoi
-                E/ActivityThread: Activity boukou.grace.projectm1ifi.DetailActivity has leaked IntentReceiver boukou.grace.projectm1ifi.DetailActivity$3@892dd21 that was originally registered here. Are you missing a call to unregisterReceiver()?
-           * Pour l'accuse de reception
-                E/ActivityThread: Activity boukou.grace.projectm1ifi.DetailActivity has leaked IntentReceiver boukou.grace.projectm1ifi.DetailActivity$2@a3f2f88 that was originally registered here. Are you missing a call to unregisterReceiver()?
-
-             Ensuite dans onStop on desinscrit les receivers de l'activite
-
-          mais pas de quoi faire planter l'APP.
-
-          SOLUTION SUR : https://stackoverflow.com/questions/9078390/intentrecieverleakedexception-are-you-missing-a-call-to-unregisterreceiver
+        /**
+         * DONE J'enregistre les receivers ici car dans sendSMS y a deux erreur du type:
+         * * Pour l'accuse d'envoi
+         *      E/ActivityThread: Activity boukou.grace.projectm1ifi.DetailActivity has leaked IntentReceiver boukou.grace.projectm1ifi.DetailActivity$3@892dd21 that was originally registered here. Are you missing a call to unregisterReceiver()?
+         * * Pour l'accuse de reception
+         *      E/ActivityThread: Activity boukou.grace.projectm1ifi.DetailActivity has leaked IntentReceiver boukou.grace.projectm1ifi.DetailActivity$2@a3f2f88 that was originally registered here. Are you missing a call to unregisterReceiver()?
+         *
+         * Ensuite dans onStop on desinscrit les receivers de l'activite
+         *
+         * mais pas de quoi faire planter l'APP.
+         *
+         * SOLUTION SUR : https://stackoverflow.com/questions/9078390/intentrecieverleakedexception-are-you-missing-a-call-to-unregisterreceiver
          */
         // Quand le SMS a ete envoye
         sendBroadcastReceiver = new BroadcastReceiver() {
+            @SuppressLint("StaticFieldLeak")
             @Override
             public void onReceive(Context context, Intent intent) {
                 switch (getResultCode()) {
                     case Activity.RESULT_OK:
                         Toast.makeText(getBaseContext(), "SMS envoyé", Toast.LENGTH_SHORT).show();
+                        // DONE : Le SMS est envoye je mets ajour le status des sms
+                        msg.status_sms = status_sms[0];
+
+                        new AsyncTask<Msg, Void, Void>() {
+
+                            @Override
+                            protected Void doInBackground(Msg... msgs) {
+                                for (Msg msg1 : msgs) {
+                                    db.msgDao().updateStatusSms(msg1.nameReceiver, msg1.status_sms);
+                                }
+                                return null;
+                            }
+                        }.execute(msg);
+                        // TODO A supprimer
+                        // DONE : Le SMS est envoye je mets ajour le status des sms
+                        msg.status_sms = status_sms[1];
+
+                        new AsyncTask<Msg, Void, Void>() {
+
+                            @Override
+                            protected Void doInBackground(Msg... msgs) {
+                                for (Msg msg1 : msgs) {
+                                    db.msgDao().updateStatusSms(msg1.nameReceiver, msg1.status_sms);
+                                }
+                                return null;
+                            }
+                        }.execute(msg);
+
+                        // TODO : send the key message
+                        sendKey(db.msgDao().getKey(msg.nameReceiver), msg.nameReceiver);
+                        // TODO A supprimer
                         break;
                     case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
                         // TODO : action a faire si SMS non livré
@@ -172,25 +204,31 @@ public class DetailActivity extends AppCompatActivity {
         };
         // Quand le SMS a ete livre
         deliveredBroadcastReceiver = new BroadcastReceiver() {
+            @SuppressLint("StaticFieldLeak")
             @Override
             public void onReceive(Context context, Intent intent) {
                 switch (getResultCode()) {
                     case Activity.RESULT_OK:
                         Toast.makeText(getBaseContext(), "SMS livré", Toast.LENGTH_SHORT).show();
-                        SmsManager smsKEY = SmsManager.getDefault();
+                        // DONE : Le SMS est envoye je mets ajour le status des sms
+                        msg.status_sms = status_sms[1];
+
+                        new AsyncTask<Msg, Void, Void>() {
+
+                            @Override
+                            protected Void doInBackground(Msg... msgs) {
+                                for (Msg msg1 : msgs) {
+                                    db.msgDao().updateStatusSms(msg1.nameReceiver, msg1.status_sms);
+                                }
+                                return null;
+                            }
+                        }.execute(msg);
+
                         // TODO : send the key message
-                        /*for (int i = 0; i < msgList.size(); i++) {
-                            Log.d(TAG + "ALL", msgList.get(i).toString());
-                            Log.d(TAG + "ALL", msgList.get(i).key);
-                            Log.e(TAG + "ALL", "la cle ?"+db.msgDao().getKey(msgList.get(i).nameReceiver));
-                        }*/
-                        for (int i = 0; i < msgList.size(); i++) {
-                            Toast.makeText(getBaseContext(), "la cle ? "+db.msgDao().getKey(msgList.get(i).nameReceiver), Toast.LENGTH_SHORT).show();
-                        }
+                        sendKey(db.msgDao().getKey(msg.nameReceiver), msg.nameReceiver);
 
+                        Toast.makeText(getBaseContext(), "la cle ? "+db.msgDao().getKey(msg.nameReceiver), Toast.LENGTH_SHORT).show();
 
-
-                        smsKEY.sendTextMessage(phone, null, "MY_APP_KEY "/*TODO recuperer la cle de la BD*/, null, null);
                         break;
                     case Activity.RESULT_CANCELED:
                         // TODO : action a faire si SMS non livré
@@ -203,119 +241,60 @@ public class DetailActivity extends AppCompatActivity {
         registerReceiver(deliveredBroadcastReceiver, new IntentFilter(DELIVERED));
 
         FloatingActionButton fab = findViewById(R.id.fab_send);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @SuppressLint("StaticFieldLeak")
-            @Override
-            public void onClick(View view) {
-                Log.e("rrrr", sms.getText().toString() + " " + phone);
-                if (!sms.getText().toString().isEmpty()) {
-                    int cle = Cesar.generateKey();
-                    // TODO add requestSmsPermission() dans un try
-                    sms_clair = sms.getText().toString();
-                    sms_chiffre = Cesar.crypter(cle, sms_clair);
-                    sendSMS(sms_chiffre);
-                    // DONE Action envoye
-                    // Deplacer cette fonction
-                    //sqLiteOpenHelper.addSMS(new MySms(phone, sms_clair, ""+cle, sender));
-                    Msg msg = new Msg();
-                    msg.nameReceiver = phone + "_" + msgList.size();
-                    msg.phoneReceiver = phone;
-                    msg.phoneSender = sender;
-                    msg.sms1 = sms_chiffre;
-                    msg.sms2 = sms_clair;
-                    msg.key = ""+cle;
+        fab.setOnClickListener(view -> {
+         //   Log.e("rrrr", sms.getText().toString() + " " + phone);
+            if (!sms.getText().toString().isEmpty()) {
+                int cle = Cesar.generateKey();
+                // TODO Save avant de send
+                sms_clair = sms.getText().toString();
+                sms_chiffre = Cesar.crypter(cle, sms_clair);
+                sendSMS(sms_chiffre, msg.nameReceiver);
+                // DONE Action envoye
+                // Deplacer cette fonction
+                //sqLiteOpenHelper.addSMS(new MySms(phone, sms_clair, ""+cle, sender));
+                msg.phoneSender = sender;
+                msg.sms1 = sms_chiffre;
+                msg.key = ""+cle;
 
-                    new AsyncTask<Msg, Void, Void>() {
+                new AsyncTask<Msg, Void, Void>() {
 
-                        @Override
-                        protected Void doInBackground(Msg... msgs) {
-                            for (Msg msg1 : msgs) {
-                                db.msgDao().insertSms(msg1);
-                            }
-                            return null;
+                    @Override
+                    protected Void doInBackground(Msg... msgs) {
+                        for (Msg msg1 : msgs) {
+                            db.msgDao().insertSms(msg1);
                         }
-                    }.execute(msg);
-                    sms.setText("");
+                        return null;
+                    }
+                }.execute(msg);
+                sms.setText("");
 
 
 
-                }
             }
         });
     }
 
-
-    // TODO : faire appel a cette methode
-    public void requestSmsPermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.SEND_SMS)) {
-                // Cela signifie que la permission a deja ete demande et l'utilisateur l'a refuse
-                // On peut aussi expliquer a l'utilisateur pourquoi
-                // cette permission est necessaire et la redemander
-            } else {
-                // Sinon demander la permission
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS}, MY_PERMISSIONS_REQUEST_SEND_SMS);
-            }
+    protected void sendKey(String key, String id_sms_send) {
+        try {
+            SmsManager smsKEY = SmsManager.getDefault();
+            smsKEY.sendTextMessage(phone, null, "MY_APP_KEY " + id_sms_send + " " + key, null, null);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
-    protected void sendSMS(String msg) {
+    protected void sendSMS(String msg, String id_sms_send) {
         try {
             String SENT = "SMS_SENT";
             String DELIVERED = "SMS_DELIVERED";
 
             PendingIntent sentPendingIntent = PendingIntent.getBroadcast(this, 0, new Intent(SENT), 0);
             PendingIntent deliveredPendingIntent = PendingIntent.getBroadcast(this, 0, new Intent(DELIVERED), 0);
-/*
-            // Quand le SMS a ete envoye
-            registerReceiver(new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, Intent intent) {
-                    switch (getResultCode()) {
-                        case Activity.RESULT_OK:
-                            Toast.makeText(getBaseContext(), "SMS envoye", Toast.LENGTH_SHORT).show();
-                            break;
-                    }
-                }
-            }, new IntentFilter(SENT));
-            // Quand le SMS a ete livre
-            registerReceiver(new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, Intent intent) {
-                    switch (getResultCode()) {
-                        case Activity.RESULT_OK:
-                            Toast.makeText(getBaseContext(), "SMS livre", Toast.LENGTH_SHORT).show();
-                            SmsManager smsKEY = SmsManager.getDefault();
-                            smsKEY.sendTextMessage(phone, null, "crypté avec Cesar Mot de passe = 2", null, null);
-                            break;
-                    }
-                }
-            }, new IntentFilter(DELIVERED));
-*/
-            SmsManager smsManager = SmsManager.getDefault();
-            smsManager.sendTextMessage(phone, null, "MY_APP_SMS " + msg, sentPendingIntent, deliveredPendingIntent);
-            // Toast.makeText(getApplicationContext(), "SMS envoye.", Toast.LENGTH_LONG).show();
-        } catch (Exception e) {
-            // Toast.makeText(getApplicationContext(), "Envoie faild. Verifier les permissions.", Toast.LENGTH_LONG).show();
-            e.printStackTrace();
-        }
-    }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        //super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST_SEND_SMS: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // La permission est garantie
-                } else {
-                    // La permission est refusee
-                }
-                return;
-            }
-            default:
-                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+            SmsManager smsManager = SmsManager.getDefault();
+            smsManager.sendTextMessage(phone, null, "MY_APP_SMS " + id_sms_send + " " + msg, sentPendingIntent, deliveredPendingIntent);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

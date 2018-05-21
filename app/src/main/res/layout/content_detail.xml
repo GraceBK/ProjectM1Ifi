@@ -61,7 +61,7 @@
                 android:padding="10dp"
                 android:scrollbars="vertical"
                 android:fadeScrollbars="false"
-                android:inputType="textCapWords|textMultiLine"
+                android:inputType="text|textMultiLine"
                 android:maxLines="4"
                 android:minLines="1"
                 android:background="#FFF"
