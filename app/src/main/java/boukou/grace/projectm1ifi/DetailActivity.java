@@ -164,7 +164,8 @@ public class DetailActivity extends AppCompatActivity {
                                 return null;
                             }
                         }.execute(msg);
-                        // TODO A supprimer
+
+                        // TODO A supprimer --------------------------------------------------------
                         // DONE : Le SMS est envoye je mets ajour le status des sms
                         msg.status_sms = status_sms[1];
 
@@ -178,10 +179,9 @@ public class DetailActivity extends AppCompatActivity {
                                 return null;
                             }
                         }.execute(msg);
-
-                        // TODO : send the key message
                         sendKey(db.msgDao().getKey(msg.nameReceiver), msg.nameReceiver);
-                        // TODO A supprimer
+                        // TODO A supprimer --------------------------------------------------------
+
                         break;
                     case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
                         // TODO : action a faire si SMS non livré

@@ -149,6 +149,7 @@ public class MainActivity extends AppCompatActivity {
         int permissionSendMessage = ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS);
         int permissionReadContact = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS);
 
+
         List<String> listPermissionsNeeded = new ArrayList<>();
 
         if (permissionSendMessage != PackageManager.PERMISSION_GRANTED) {

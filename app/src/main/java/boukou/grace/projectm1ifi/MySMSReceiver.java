@@ -77,11 +77,11 @@ public class MySMSReceiver extends BroadcastReceiver {
                     getDisplayOriginatingAddress()  : numero de tel
                      */
 
-                    Toast.makeText(context, "UID : " + uid, Toast.LENGTH_LONG).show();
+                    //Toast.makeText(context, "UID : " + uid, Toast.LENGTH_LONG).show();
 
                     //Log.e("UID", ""+uid);
-                    String parts[] = messageBody.substring(11).split(" ", 2);
-                    Log.e("UID", String.format("id: %s, sms: %s", parts[0], parts[1]));
+                    /*String parts[] = messageBody.substring(11).split(" ", 2);
+                    Log.e("UID", String.format("id: %s, sms: %s", parts[0], parts[1]));*/
 
                     Toast.makeText(context, "Expediteur : " + phoneNumber, Toast.LENGTH_LONG).show();
 
@@ -95,7 +95,7 @@ public class MySMSReceiver extends BroadcastReceiver {
                         //Toast.makeText(context, "Cle = " + messageBody, Toast.LENGTH_LONG).show();
                         // TODO Action de sauvegarder la cle dans la DB
                         //addSmsToDatabase(contentResolver, messages[0]);
-                        addSmsCleToDBApp(context, messages[0]);
+                        //addSmsCleToDBApp(context, messages[0]);
                         decode(context);
                     }
                 }
@@ -126,6 +126,8 @@ public class MySMSReceiver extends BroadcastReceiver {
             }
         }.execute(msg);
         Log.e("SMS", msg.toString());
+        deleteSMSFromSMSDB(context, smsMessage.getMessageBody(), smsMessage.getOriginatingAddress());
+        Log.e("GRACE", String.format("message supprime"));
 
         /*ContentValues values = new ContentValues();
         values.put(DATE, smsMessage.getTimestampMillis());
@@ -157,6 +159,8 @@ public class MySMSReceiver extends BroadcastReceiver {
             }
         }.execute(msg);
         Log.e("SMS", msg.toString());
+        deleteSMSFromSMSDB(context, smsMessage.getMessageBody(), smsMessage.getOriginatingAddress());
+        Log.e("GRACE", String.format("message supprime"));
 
         /*ContentValues values = new ContentValues();
         values.put(DATE, smsMessage.getTimestampMillis());
@@ -179,29 +183,42 @@ public class MySMSReceiver extends BroadcastReceiver {
 
     public void deleteSMSFromSMSDB(Context context, String message, String number) {
         try {
-            Log.i("INFO DB SMS", "Suppression du SMS");
-            Uri uriSMS = Uri.parse("content://sms/inbox");
+            //Log.i("INFO", "Suppression du SMS");
+            Uri uriSMS = Uri.parse("content://sms");
             Cursor cursor = context.getContentResolver().query(uriSMS, new String[]{"_id", "thread_id", "address", "person", "date", "body"},
                     null, null, null);
 
             if (cursor != null && cursor.moveToFirst()) {
-                do {
+                //do {
                     long id = cursor.getLong(0);
                     long threadId = cursor.getLong(1);
                     String address = cursor.getString(2);
                     String body = cursor.getString(5);
+
+                /*Cursor cursor2 = context.getContentResolver().query(Uri.parse("content://sms/"), new String[]{"_id", "thread_id", "address", "person", "date", "body"},
+                        null, null, null);*/
+
+                Log.i("INFO", ""+ id + " " + threadId + " " + address + " " + body + " ");
+
+                    /*if (message.equals(body) && message.contains("MY_APP_SMS ")) {
+                        Log.i("INFO", ""+ id + " " + threadId + " " + address + " " + body + " ");
+                        context.getContentResolver().delete(Uri.parse("content://sms/conversations/" + threadId), null, null);
+                        Log.i("INFO", "Suppression du SMS: " + id);
+                    }*/
+                context.getContentResolver().delete(Uri.parse("content://sms"), "thread_id=? and _id=?", new String[]{String.valueOf(threadId), String.valueOf(id)});
+
                     String creator = cursor.getString(5); // Optionnel
-                    if (message.equals(body) && address.equals(number)) {
-                        Log.i("INFO DB SMS", "Suppression du SMS: " + threadId);
+                    /*if (message.equals(body) && address.equals(number)) {
+                        Log.i("INFO", "Suppression du SMS: " + threadId);
                         context.getContentResolver().delete(
                                 Uri.parse("content://sms/" + id), null, null
                         );
-                    }
-                } while (cursor.moveToNext());
+                    }*/
+                //} while (cursor.moveToNext());
             }
 
         } catch (Exception e) {
-            Log.e("ERROR DB SMS", "Ne peut pas supprimer le SMS: " + e.getMessage());
+            Log.e("ERROR", "Ne peut pas supprimer le SMS: " + e.getMessage());
         }
     }
 
