@@ -43,8 +43,6 @@ public class MainActivity extends AppCompatActivity {
     RecentViewModel viewModel;
 
     private AppDatabase db;
-    //private MyMessageViewModel viewModel;
-    //private MyMessageAdapter messageAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,7 +70,6 @@ public class MainActivity extends AppCompatActivity {
                 adapter.update(rContacts);
             }
         });
-        //viewModel.addSms(sms1.nameReceiver, sms1.phoneReceiver, sms1.sms1, sms1.key);
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {

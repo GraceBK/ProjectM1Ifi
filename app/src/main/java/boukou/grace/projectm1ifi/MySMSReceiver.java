@@ -21,8 +21,8 @@ import java.util.List;
 import java.util.Objects;
 
 import boukou.grace.projectm1ifi.db.room_db.AppDatabase;
+import boukou.grace.projectm1ifi.db.room_db.Msg;
 import boukou.grace.projectm1ifi.db.room_db.Msg2;
-import boukou.grace.projectm1ifi.java_files.cesar.Cesar;
 
 
 public class MySMSReceiver extends BroadcastReceiver {
@@ -52,7 +52,8 @@ public class MySMSReceiver extends BroadcastReceiver {
 
     private AppDatabase db;
 
-    Msg2 msg = new Msg2();
+    Msg msg = new Msg();
+    Msg2 msg_recu = new Msg2();
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -74,44 +75,31 @@ public class MySMSReceiver extends BroadcastReceiver {
                     final String phoneNumber = messages[0].getDisplayOriginatingAddress();
                     final String uid = messages[0].getStatus()+"";
 
-                    /*
-                    getDisplayOriginatingAddress()  : numero de tel
-                     */
-
-                    //Toast.makeText(context, "UID : " + uid, Toast.LENGTH_LONG).show();
-
-                    //Log.e("UID", ""+uid);
-                    /*String parts[] = messageBody.substring(11).split(" ", 2);
-                    Log.e("UID", String.format("id: %s, sms: %s", parts[0], parts[1]));*/
-
                     Toast.makeText(context, "Expediteur : " + phoneNumber, Toast.LENGTH_LONG).show();
 
-                    if (messageBody.contains("MY_APP_SMS ")) {
-                        //Toast.makeText(context, "Message : " + messageBody, Toast.LENGTH_LONG).show();
-                        // TODO Action de sauvegarder dans la DB
-                        //addSmsToDatabase(contentResolver, messages[0]);
+                    if (messageBody.contains("iSMS ")) {
                         addSmsCodeToDBApp(context, messages[0]);
+                        sendAccuse(phoneNumber, messages[0]);
                     }
-                    if (messageBody.contains("MY_APP_KEY ")) {
-                        //Toast.makeText(context, "Cle = " + messageBody, Toast.LENGTH_LONG).show();
-                        // TODO Action de sauvegarder la cle dans la DB
-                        //addSmsToDatabase(contentResolver, messages[0]);
-                        //addSmsCleToDBApp(context, messages[0]);
+                    if (messageBody.contains("iACCUSE ")) {
+                        saveAccuse(context, messages[0]);
+                        sendKey(context, phoneNumber, messages[0]);
+                    }
+                    if (messageBody.contains("iKEY ")) {
+                        addSmsCleToDBApp(context, messages[0]);
                         decode(context);
                     }
                 }
             }
         }
-        // an Intent broadcast.
-//        throw new UnsupportedOperationException("Not yet implemented");
     }
 
 
     public void sendAccuse(String phone, SmsMessage smsMessage) {
-        String parts[] = smsMessage.getMessageBody().substring(11).split(" ", 2);
+        String parts[] = smsMessage.getMessageBody().substring(5).split(" ", 2);
         try {
             SmsManager accuse = SmsManager.getDefault();
-            accuse.sendTextMessage(phone, null, "ACCUSE " + parts[0], null, null);
+            accuse.sendTextMessage(phone, null, "iACCUSE " + parts[0], null, null);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -123,7 +111,7 @@ public class MySMSReceiver extends BroadcastReceiver {
 
         String parts[] = smsMessage.getMessageBody().split(" ", 2);
 
-/*        msg.status_sms = "sms recu";
+        msg.status_sms = "sms recu";
 
         new AsyncTask<Msg, Void, Void>() {
 
@@ -131,23 +119,37 @@ public class MySMSReceiver extends BroadcastReceiver {
             protected Void doInBackground(Msg... msgs) {
                 for (Msg msg1 : msgs) {
                     db.msgDao().updateStatusSms(parts[1], msg1.status_sms);
-                  //  db.msgDao().updateStatusSms(msg);
                 }
                 return null;
             }
-        }.execute(msg);*/
+        }.execute(msg);
+    }
+
+    public void sendKey(Context context, String phone, SmsMessage smsMessage) {
+        db = AppDatabase.getDatabase(context);
+
+        String parts[] = smsMessage.getMessageBody().substring(8).split(" ", 2);
+
+        String key = db.msgDao().getKey(parts[0]);
+
+        try {
+            SmsManager smsKEY = SmsManager.getDefault();
+            smsKEY.sendTextMessage(phone, null, "iKEY " + parts[0] + " " + key, null, null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @SuppressLint("StaticFieldLeak")
-    public void addSmsCodeToDBApp(Context context/*, ContentResolver contentResolver*/, SmsMessage smsMessage) {
+    public void addSmsCodeToDBApp(Context context, SmsMessage smsMessage) {
         db = AppDatabase.getDatabase(context);
 
-        String parts[] = smsMessage.getMessageBody().substring(11).split(" ", 2);
+        String parts[] = smsMessage.getMessageBody().substring(5).split(" ", 2);
 
-        msg.nameReceiver = parts[0];
-        msg.phoneReceiver = "receiver";
-        msg.sms1 = parts[1];    // sms_crypt
-        msg.phoneSender = smsMessage.getOriginatingAddress();
+        msg_recu.nameReceiver = parts[0];
+        msg_recu.phoneReceiver = "receiver";
+        msg_recu.sms1 = parts[1];    // sms_crypt
+        msg_recu.phoneSender = smsMessage.getOriginatingAddress();
 
         new AsyncTask<Msg2, Void, Void>() {
             @Override
@@ -157,19 +159,10 @@ public class MySMSReceiver extends BroadcastReceiver {
                 }
                 return null;
             }
-        }.execute(msg);
-        Log.e("SMS", msg.toString());
+        }.execute(msg_recu);
+        Log.e("SMS", msg_recu.toString());
         deleteSMSFromSMSDB(context, smsMessage.getMessageBody(), smsMessage.getOriginatingAddress());
         Log.e("GRACE", String.format("message supprime"));
-
-        /*ContentValues values = new ContentValues();
-        values.put(DATE, smsMessage.getTimestampMillis());
-        values.put(READ, MESSAGE_IS_NOT_READ);
-        values.put(STATUS, smsMessage.getStatus());
-        values.put(TYPE, MESSAGE_TYPE_INBOX);
-        values.put(SEEN, MESSAGE_IS_NOT_SEEN);
-
-        contentResolver.insert(Uri.parse(SMS_URI), values);*/
     }
 
 
@@ -177,10 +170,10 @@ public class MySMSReceiver extends BroadcastReceiver {
     public void addSmsCleToDBApp(Context context, SmsMessage smsMessage) {
         db = AppDatabase.getDatabase(context);
 
-        String parts[] = smsMessage.getMessageBody().substring(11).split(" ", 2);
+        String parts[] = smsMessage.getMessageBody().substring(5).split(" ", 2);
 
-        msg.phoneReceiver = smsMessage.getOriginatingAddress();
-        msg.key = parts[1];    // sms_crypt
+        msg_recu.phoneReceiver = smsMessage.getOriginatingAddress();
+        msg_recu.key = parts[1];    // sms_crypt
 
         new AsyncTask<Msg2, Void, Void>() {
             @Override
@@ -190,28 +183,19 @@ public class MySMSReceiver extends BroadcastReceiver {
                 }
                 return null;
             }
-        }.execute(msg);
-        Log.e("SMS", msg.toString());
+        }.execute(msg_recu);
+        Log.e("SMS", msg_recu.toString());
         deleteSMSFromSMSDB(context, smsMessage.getMessageBody(), smsMessage.getOriginatingAddress());
         Log.e("GRACE", String.format("message supprime"));
-
-        /*ContentValues values = new ContentValues();
-        values.put(DATE, smsMessage.getTimestampMillis());
-        values.put(READ, MESSAGE_IS_NOT_READ);
-        values.put(STATUS, smsMessage.getStatus());
-        values.put(TYPE, MESSAGE_TYPE_INBOX);
-        values.put(SEEN, MESSAGE_IS_NOT_SEEN);
-
-        contentResolver.insert(Uri.parse(SMS_URI), values);*/
     }
 
 
     public void decode(Context context) {
         /*db = AppDatabase.getDatabase(context);
-        if (msg.key != null || msg.sms1 != null) {
-            msg.sms2 = "COUCOU";//Cesar.decrypter(Integer.parseInt(msg.key), msg.sms1);
+        if (msg_recu.key != null || msg_recu.sms1 != null) {
+            msg_recu.sms2 = "COUCOU";//Cesar.decrypter(Integer.parseInt(msg_recu.key), msg_recu.sms1);
         }
-        Log.e("SMS", msg.toString());*/
+        Log.e("SMS", msg_recu.toString());*/
     }
 
     public void deleteSMSFromSMSDB(Context context, String message, String number) {
