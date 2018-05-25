@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.util.List;
-import java.util.Objects;
 
 import boukou.grace.projectm1ifi.db.room_db.Msg;
 

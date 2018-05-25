@@ -2,7 +2,6 @@ package boukou.grace.projectm1ifi.db.room_db;
 
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 
@@ -28,14 +27,6 @@ public class RContact {
     public RContact() {
         this.status = "Draft copy";
     }
-
-    @Ignore
-    public RContact(String username, String phone, String status) {
-        this.username = username;
-        this.phone = phone;
-        this.status = status;
-    }
-
 
     public String getUsername() {
         return username;

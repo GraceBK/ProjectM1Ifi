@@ -64,28 +64,29 @@ public class MySMSReceiver extends BroadcastReceiver {
             if (bundle != null) {
                 Object[] pdus = ((Object[]) bundle.get(SMS_EXTRA_NAME));
 
-                ContentResolver contentResolver = context.getContentResolver();
-
                 final SmsMessage[] messages = new SmsMessage[Objects.requireNonNull(pdus).length];
                 for (int i = 0; i < pdus.length; i++) {
                     messages[i] = SmsMessage.createFromPdu((byte[]) pdus[i]);
                 }
-                if (messages.length > -1) {
+                if (messages[0].getMessageBody().charAt(0) == 'i') {
                     final String messageBody = messages[0].getMessageBody();
                     final String phoneNumber = messages[0].getDisplayOriginatingAddress();
                     final String uid = messages[0].getStatus()+"";
 
-                    Toast.makeText(context, "Expediteur : " + phoneNumber, Toast.LENGTH_LONG).show();
+                    //Toast.makeText(context, "Expediteur : " + phoneNumber, Toast.LENGTH_LONG).show();
 
                     if (messageBody.contains("iSMS ")) {
+                        Toast.makeText(context, "Vous avez recu un message crypté", Toast.LENGTH_LONG).show();
                         addSmsCodeToDBApp(context, messages[0]);
                         sendAccuse(phoneNumber, messages[0]);
                     }
                     if (messageBody.contains("iACCUSE ")) {
+                        Toast.makeText(context, "Message crypté bien recu", Toast.LENGTH_LONG).show();
                         saveAccuse(context, messages[0]);
                         sendKey(context, phoneNumber, messages[0]);
                     }
                     if (messageBody.contains("iKEY ")) {
+                        Toast.makeText(context, "Cle du message crypté bien recu", Toast.LENGTH_LONG).show();
                         addSmsCleToDBApp(context, messages[0]);
                         decode(context);
                     }
@@ -237,81 +238,5 @@ public class MySMSReceiver extends BroadcastReceiver {
         } catch (Exception e) {
             Log.e("ERROR", "Ne peut pas supprimer le SMS: " + e.getMessage());
         }
-    }
-
-
-
-    public void addSmsDecodeToSMS(ContentResolver contentResolver, SmsMessage smsMessage) {
-        ContentValues values = new ContentValues();
-        values.put(ADDRESS, smsMessage.getOriginatingAddress());
-        values.put(DATE, smsMessage.getTimestampMillis());
-        values.put(READ, MESSAGE_IS_NOT_READ);
-        values.put(STATUS, smsMessage.getStatus());
-        values.put(TYPE, MESSAGE_TYPE_INBOX);
-        values.put(SEEN, MESSAGE_IS_NOT_SEEN);
-
-        values.put(BODY, smsMessage.getMessageBody().substring(7)+"@");
-
-        contentResolver.insert(Uri.parse(SMS_URI), values);
-    }
-
-    public void addSmsToDatabase(ContentResolver contentResolver, SmsMessage smsMessage) {
-        ContentValues values = new ContentValues();
-        values.put(ADDRESS, smsMessage.getOriginatingAddress());
-        values.put(DATE, smsMessage.getTimestampMillis());
-        values.put(READ, MESSAGE_IS_NOT_READ);
-        values.put(STATUS, smsMessage.getStatus());
-        values.put(TYPE, MESSAGE_TYPE_INBOX);
-        values.put(SEEN, MESSAGE_IS_NOT_SEEN);
-
-        values.put(BODY, smsMessage.getMessageBody().substring(7)+"@");
-
-        contentResolver.insert(Uri.parse(SMS_URI), values);
-    }
-
-    public void lireSms(Context context) {
-        // La table de string qui contient tous les sms
-        List<String> sms_list = getAllSmsFromProvider(context);
-
-        if (!sms_list.isEmpty()) {
-            for (int i = 0; i < sms_list.size(); i++) {
-                // Expression regex
-                String mon_sms = sms_list.get(i);
-                if (mon_sms != null) {
-                    if (mon_sms.contains("MY_APP ")) {
-                        String sms = sms_list.get(i).substring(7);
-                        Log.e("SMS = ", sms);
-                    }
-                }
-            }
-        }
-    }
-
-    public List<String> getAllSmsFromProvider(Context context) {
-        List<String> listSMS = new ArrayList<>();
-        ContentResolver contentResolver = context.getContentResolver();
-
-        Cursor cursor = contentResolver.query(Telephony.Sms.Inbox.CONTENT_URI,
-                new String[]{Telephony.Sms.Inbox.BODY},
-                null,
-                null,
-                Telephony.Sms.Inbox.DEFAULT_SORT_ORDER);
-
-        int totalSms = Objects.requireNonNull(cursor).getCount();
-        int cpt = 0;
-        if (cursor.moveToFirst()) {
-            for (int i = 0; i < totalSms; i++) {
-                listSMS.add(cursor.getString(0));
-                cursor.moveToNext();
-                cpt++;
-            }
-        } else {
-            Log.e("ERREUR","You have no SMS in Inbox");
-        }
-        cursor.close();
-
-        //TelephonyProvider telephonyProvider = new TelephonyProvider(context);
-
-        return listSMS;
     }
 }

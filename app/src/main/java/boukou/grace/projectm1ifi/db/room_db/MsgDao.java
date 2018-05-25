@@ -14,9 +14,6 @@ import java.util.List;
  */
 @Dao
 public interface MsgDao {
-    @Query("SELECT * FROM Msg")
-    List<Msg> getAllMsg();
-
     @Query("SELECT * FROM Msg WHERE numero_receiver = :phone")
     List<Msg> getAllMsgByNumber(String phone);
 

@@ -34,13 +34,8 @@ public interface Msg2Dao {
     int updateKeySms_2(String id_sms, String cle);
 
     @Query("UPDATE Msg2 SET cle = :cle WHERE name_receiver = :id_sms")
-    int updateKeySms_22(String id_sms, String cle);
-
-    //@Query("SELECT sms.name_receiver, sms.numero_receiver FROM sms WHERE uid IN (:smsIds)")
+    void updateKeySms_22(String id_sms, String cle);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertSms_2(Msg2... msgs);
-
-    @Update
-    void updateStatusSms_2(Msg2... msgs);
 }
