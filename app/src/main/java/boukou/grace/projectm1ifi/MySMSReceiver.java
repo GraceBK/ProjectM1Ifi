@@ -1,18 +1,22 @@
 package boukou.grace.projectm1ifi;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Telephony;
+import android.support.v4.app.ActivityCompat;
 import android.telephony.SmsManager;
 import android.telephony.SmsMessage;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -23,6 +27,7 @@ import java.util.Objects;
 import boukou.grace.projectm1ifi.db.room_db.AppDatabase;
 import boukou.grace.projectm1ifi.db.room_db.Msg;
 import boukou.grace.projectm1ifi.db.room_db.Msg2;
+import boukou.grace.projectm1ifi.java_files.cesar.Cesar;
 
 
 public class MySMSReceiver extends BroadcastReceiver {
@@ -71,7 +76,7 @@ public class MySMSReceiver extends BroadcastReceiver {
                 if (messages[0].getMessageBody().charAt(0) == 'i') {
                     final String messageBody = messages[0].getMessageBody();
                     final String phoneNumber = messages[0].getDisplayOriginatingAddress();
-                    final String uid = messages[0].getStatus()+"";
+                    final String uid = messages[0].getStatus() + "";
 
                     //Toast.makeText(context, "Expediteur : " + phoneNumber, Toast.LENGTH_LONG).show();
 
@@ -88,7 +93,7 @@ public class MySMSReceiver extends BroadcastReceiver {
                     if (messageBody.contains("iKEY ")) {
                         Toast.makeText(context, "Cle du message crypté bien recu", Toast.LENGTH_LONG).show();
                         addSmsCleToDBApp(context, messages[0]);
-                        decode(context);
+                        decode(context, messages[0]);
                     }
                 }
             }
@@ -191,12 +196,40 @@ public class MySMSReceiver extends BroadcastReceiver {
     }
 
 
-    public void decode(Context context) {
-        /*db = AppDatabase.getDatabase(context);
-        if (msg_recu.key != null || msg_recu.sms1 != null) {
-            msg_recu.sms2 = "COUCOU";//Cesar.decrypter(Integer.parseInt(msg_recu.key), msg_recu.sms1);
+    public void decode(Context context, SmsMessage smsMessage) {
+        db = AppDatabase.getDatabase(context);
+        String parts[] = smsMessage.getMessageBody().substring(8).split(" ", 2);
+
+        String sms = db.msg2Dao().getKey_2(parts[0]);
+        String key = db.msg2Dao().getSms_2(parts[0]);
+
+        Log.e("TTTTTT", sms+ " : " + key + " : "+Cesar.decrypter(Integer.parseInt(msg_recu.key), "Coucou"));
+
+        if (sms != null || key != null) {
+         //   msg_recu.sms2 = "COUCOU";//Cesar.decrypter(Integer.parseInt(msg_recu.key), msg_recu.sms1);
+            //SmsManager smsKEY = SmsManager.getDefault();
+            //smsKEY.sendTextMessage(, null, "COUCOU " + Cesar.decrypter(Integer.parseInt(msg_recu.key), msg_recu.sms1), null, null);
+
+            Log.e("EEEE", sms+ " : " + key + " : "+Cesar.decrypter(Integer.parseInt(msg_recu.key), "Coucou"));
+
+            //insertSMSInSMSDB(context, "GRACE___"/* + Cesar.decrypter(Integer.parseInt(msg_recu.key), msg_recu.sms1)*/, msg_recu.phoneReceiver);
+
+            Log.e("SMS", msg_recu.toString());
         }
-        Log.e("SMS", msg_recu.toString());*/
+    }
+
+    public void insertSMSInSMSDB(Context context, String message, String number) {
+        try {
+            Uri uriSMS = Uri.parse("content://sms/");
+            ContentValues contentValues = new ContentValues();
+            contentValues.put("address", number);
+            contentValues.put("body", message);
+            contentValues.put("type", 1);   // 1 pour MESSAGE_TYPE_INBOX
+
+            context.getContentResolver().insert(Uri.parse("content://sms/inbox"), contentValues);
+        } catch (Exception e) {
+            Log.e("ERROR", "Ne peut pas supprimer le SMS: " + e.getMessage());
+        }
     }
 
     public void deleteSMSFromSMSDB(Context context, String message, String number) {

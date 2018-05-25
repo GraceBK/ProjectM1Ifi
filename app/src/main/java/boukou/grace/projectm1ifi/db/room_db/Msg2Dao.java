@@ -24,6 +24,9 @@ public interface Msg2Dao {
     @Query("SELECT cle FROM Msg2 WHERE name_receiver = :id_sms")
     String getKey_2(String id_sms);
 
+    @Query("SELECT sms_crypt FROM Msg2 WHERE name_receiver = :id_sms")
+    String getSms_2(String id_sms);
+
     @Query("SELECT * FROM Msg2")
     LiveData<List<Msg>> getAll2();
 
