@@ -2,6 +2,7 @@ package boukou.grace.projectm1ifi.db.room_db;
 
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 
 /**
@@ -43,8 +44,8 @@ public class Msg {
     @ColumnInfo(name = "status_sms")
     public String status_sms;
 
-    @ColumnInfo(name = "status_key")
-    public String status_key;
+    /*@ColumnInfo(name = "status_key")
+    public String status_key;*/
 
     @Override
     public String toString() {

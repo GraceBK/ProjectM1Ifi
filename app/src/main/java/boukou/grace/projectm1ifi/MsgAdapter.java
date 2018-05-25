@@ -42,11 +42,6 @@ public class MsgAdapter extends RecyclerView.Adapter {
     }
 
     public void update(List<Msg> msgs) {
-        /*for (int i = 0; i < this.msgList.size(); i++) {
-            if (this.msgList.get(i).phoneReceiver.equals(phoneReceiver)) {
-                this.msgList = msgs;
-            }
-        }*/
         this.msgList = msgs;
         notifyDataSetChanged();
     }
@@ -68,7 +63,7 @@ public class MsgAdapter extends RecyclerView.Adapter {
         void bind(Msg msg2) {
             this.sms.setText(msg2.sms1);
             this.status_sms.setText(msg2.status_sms);
-            this.status_key.setText(msg2.status_key);
+            //this.status_key.setText(msg2.status_key);
         }
     }
 }

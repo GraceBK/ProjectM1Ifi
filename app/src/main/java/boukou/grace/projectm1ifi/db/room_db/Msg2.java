@@ -43,8 +43,8 @@ public class Msg2 {
     @ColumnInfo(name = "status_sms")
     public String status_sms;
 
-    @ColumnInfo(name = "status_key")
-    public String status_key;
+    /*@ColumnInfo(name = "status_key")
+    public String status_key;*/
 
     @Override
     public String toString() {

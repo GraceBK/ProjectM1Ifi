@@ -21,11 +21,17 @@ public interface MsgDao {
     @Query("SELECT * FROM Msg WHERE numero_receiver = :phone")
     List<Msg> getAllMsgByNumber(String phone);
 
+    /*@Query("SELECT COALESCE(MAX(name_receiver) + 1, 0) FROM Msg WHERE numero_receiver = :phone")
+    List<Msg> getSize(String phone);*/
+
     @Query("SELECT cle FROM Msg WHERE name_receiver = :id_sms")
     String getKey(String id_sms);
 
     @Query("SELECT * FROM Msg WHERE numero_sender = 'sender'")
     LiveData<List<Msg>> getAll();
+
+    @Query("UPDATE Msg SET name_receiver = :name_id WHERE sms_crypt = :sms")
+    int updateID(String sms, String name_id);
 
     @Query("UPDATE Msg SET status_sms = :statusSms WHERE name_receiver = :id_sms")
     int updateStatusSms(String id_sms, String statusSms);

@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Telephony;
+import android.telephony.SmsManager;
 import android.telephony.SmsMessage;
 import android.util.Log;
 import android.widget.Toast;
@@ -103,6 +104,38 @@ public class MySMSReceiver extends BroadcastReceiver {
         }
         // an Intent broadcast.
 //        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+
+    public void sendAccuse(String phone, SmsMessage smsMessage) {
+        String parts[] = smsMessage.getMessageBody().substring(11).split(" ", 2);
+        try {
+            SmsManager accuse = SmsManager.getDefault();
+            accuse.sendTextMessage(phone, null, "ACCUSE " + parts[0], null, null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @SuppressLint("StaticFieldLeak")
+    public void saveAccuse(Context context, /*String phone, */SmsMessage smsMessage) {
+        db = AppDatabase.getDatabase(context);
+
+        String parts[] = smsMessage.getMessageBody().split(" ", 2);
+
+/*        msg.status_sms = "sms recu";
+
+        new AsyncTask<Msg, Void, Void>() {
+
+            @Override
+            protected Void doInBackground(Msg... msgs) {
+                for (Msg msg1 : msgs) {
+                    db.msgDao().updateStatusSms(parts[1], msg1.status_sms);
+                  //  db.msgDao().updateStatusSms(msg);
+                }
+                return null;
+            }
+        }.execute(msg);*/
     }
 
     @SuppressLint("StaticFieldLeak")
