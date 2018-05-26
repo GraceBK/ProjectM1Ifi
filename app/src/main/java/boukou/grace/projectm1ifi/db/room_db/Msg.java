@@ -26,7 +26,7 @@ public class Msg {
     public int uid;
 
     @ColumnInfo(name = "name_receiver")
-    public String nameReceiver;// TODO a envoyer avec le message ensuite le copier dans le message de la cle
+    public String nameReceiver;
 
     @ColumnInfo(name = "numero_receiver")
     public String phoneReceiver;

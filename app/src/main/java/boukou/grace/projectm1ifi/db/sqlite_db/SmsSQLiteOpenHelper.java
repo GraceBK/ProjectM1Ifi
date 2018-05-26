@@ -43,7 +43,7 @@ public class SmsSQLiteOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        // TODO : Instruction SQL pour creer une table SMS
+
         String CREATE_SMS_TABLE = "CREATE TABLE IF NOT EXISTS " + TABLE_SMS + " (" +
                 "" + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                 "" + COLUMN_CONTACT_ID + " TEXT," +
@@ -58,13 +58,13 @@ public class SmsSQLiteOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        // TODO : supprimer l'ancienne table si elle existe
+
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_SMS);
         // creer une nouvelle table SMS
         this.onCreate(db);
     }
 
-    // TODO pointeur vers le sms
+
     private MySms cursorToSms(Cursor cursor) {
         MySms mySms = new MySms();
         mySms.set_id(cursor.getInt(0));// ID

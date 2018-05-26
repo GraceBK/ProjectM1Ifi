@@ -81,12 +81,7 @@ public class DetailActivity extends AppCompatActivity {
                 @Override
                 protected Void doInBackground(Msg... msgs) {
                     final List<Msg> msgs1 = db.msgDao().getAllMsgByNumber(phone);
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            adapter.update(msgs1);
-                        }
-                    });
+                    runOnUiThread(() -> adapter.update(msgs1));
                     return null;
                 }
             }.execute(msg);
@@ -97,10 +92,9 @@ public class DetailActivity extends AppCompatActivity {
             if (!sms.getText().toString().isEmpty()) {
                 int cle = Cesar.generateKey();
                 taille = adapter.getItemCount();
-                // TODO Save avant de send
                 sms_clair = sms.getText().toString();
                 sms_chiffre = Cesar.crypter(cle, sms_clair);
-                // DONE Action envoye
+                
                 msg.nameReceiver = phone + "_" + taille;
                 msg.phoneSender = sender;
                 msg.sms1 = sms_chiffre;
@@ -127,7 +121,7 @@ public class DetailActivity extends AppCompatActivity {
     protected void sendSMS(String msg, String id_sms_send) {
         try {
             SmsManager smsManager = SmsManager.getDefault();
-            smsManager.sendTextMessage(phone, null, "iSMS " + id_sms_send + " " + msg, null, null/*sentPendingIntent, deliveredPendingIntent*/);
+            smsManager.sendTextMessage(phone, null, "iSMS " + id_sms_send + " " + msg, null, null);
         } catch (Exception e) {
             e.printStackTrace();
         }

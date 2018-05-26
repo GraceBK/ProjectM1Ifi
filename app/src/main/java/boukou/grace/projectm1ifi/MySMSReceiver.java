@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.telephony.SmsManager;
 import android.telephony.SmsMessage;
+import android.util.Log;
 import android.widget.Toast;
 
 import java.util.List;
@@ -28,7 +29,7 @@ public class MySMSReceiver extends BroadcastReceiver {
 
     private AppDatabase db;
 
-    //List<RContact> contacts;
+    List<RContact> contacts;
 
     Msg msg = new Msg();
     //Msg2 msg_recu = new Msg2();
@@ -46,7 +47,7 @@ public class MySMSReceiver extends BroadcastReceiver {
                 for (int i = 0; i < pdus.length; i++) {
                     messages[i] = SmsMessage.createFromPdu((byte[]) pdus[i]);
                 }
-                if (messages[0].getMessageBody().charAt(0) == 'i') {
+               // if (messages[0].getMessageBody().charAt(0) == 'i') {
                     final String messageBody = messages[0].getMessageBody();
                     final String phoneNumber = messages[0].getDisplayOriginatingAddress();
                     //final String uid = messages[0].getStatus() + "";
@@ -68,7 +69,7 @@ public class MySMSReceiver extends BroadcastReceiver {
                         addSmsCleToDBApp(context, messages[0]);
                         decode(context, messages[0]);
                     }
-                }
+               // }
             }
         }
     }
@@ -155,10 +156,6 @@ public class MySMSReceiver extends BroadcastReceiver {
             }
         }.execute(msg_recu);
          */
-
-        /*Log.e("SMS", msg_recu.toString());
-        deleteSMSFromSMSDB(context, smsMessage.getMessageBody(), smsMessage.getOriginatingAddress());
-        Log.e("GRACE", String.format("message supprime"));*/
     }
 
     @SuppressLint("StaticFieldLeak")
@@ -194,10 +191,6 @@ public class MySMSReceiver extends BroadcastReceiver {
             }
         }.execute(msg_recu);
          */
-
-        /*Log.e("SMS", msg_recu.toString());
-        deleteSMSFromSMSDB(context, smsMessage.getMessageBody(), smsMessage.getOriginatingAddress());
-        Log.e("GRACE", String.format("message supprime"));*/
     }
 
     @SuppressLint("StaticFieldLeak")
@@ -205,8 +198,10 @@ public class MySMSReceiver extends BroadcastReceiver {
         db = AppDatabase.getDatabase(context);
         String parts[] = smsMessage.getMessageBody().substring(5).split(" ", 2);
 
-        String sms = db.msgDao().getSms(parts[0]);
-        String key = db.msgDao().getKey(parts[0]);
+        String sms = db.msgDao().getSms(parts[0] + "r");
+        String key = parts[1]/*db.msgDao().getKey(parts[0] + "r")*/;
+
+        Log.e("-------", "cle = "+key+ " SMS = "+sms + " part "+ parts[0]);
 
         msg.sms2 = Cesar.decrypter(Integer.parseInt(key), sms);
 
@@ -221,8 +216,8 @@ public class MySMSReceiver extends BroadcastReceiver {
         }.execute(msg);
 
         // DONE notification
-        createNotification(context, "Coucou ", Cesar.decrypter(Integer.parseInt(key), sms));
-        /*"Vous avez un nouveau message dechiffre"*/
+        createNotification(context, "Nouveau SMS dechiffre", Cesar.decrypter(Integer.parseInt(key), sms));
+        /*"Cesar.decrypter(Integer.parseInt(key), sms)"*/
         /*
         Log.e("TTTTTT", sms+ " : " + key + " : "+Cesar.decrypter(Integer.parseInt(msg_recu.key), "Coucou"));
 
@@ -243,7 +238,7 @@ public class MySMSReceiver extends BroadcastReceiver {
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "grace_bk_id")
                 .setSmallIcon(R.drawable.ic_stat_name)
-                .setContentTitle("Projet M1 Info")
+                .setContentTitle("Nouveau SMS dechiffre")
                 .setTicker(msgAlert)
                 .setContentText(msgText);
         builder.setContentIntent(pendingIntent);
