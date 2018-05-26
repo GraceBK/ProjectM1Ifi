@@ -38,7 +38,7 @@
         android:layout_gravity="bottom|end"
         android:layout_marginBottom="100dp"
         android:layout_marginEnd="@dimen/fab_margin"
-        app:srcCompat="@drawable/ic_done_receive"
+        app:srcCompat="@drawable/ic_inbox"
         app:elevation=".5dp" />
 
 </android.support.design.widget.CoordinatorLayout>
