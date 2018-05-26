@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import java.util.List;
+import java.util.Objects;
 
 import boukou.grace.projectm1ifi.db.room_db.Msg;
 import boukou.grace.projectm1ifi.java_files.cesar.Cesar;
@@ -21,22 +22,49 @@ import boukou.grace.projectm1ifi.java_files.cesar.Cesar;
  */
 public class MsgAdapter extends RecyclerView.Adapter {
 
+    private static final int VIEW_MESSAGE_SENT = 1;
+    private static final int VIEW_MESSAGE_RECEIVED = 2;
+
     private List<Msg> msgList;
 
     MsgAdapter(List<Msg> msgList) {
         this.msgList = msgList;
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        Msg msg = msgList.get(position);
+        if (Objects.equals(msg.phoneSender, "sender")) {
+            return VIEW_MESSAGE_SENT;
+        } else {
+            return VIEW_MESSAGE_RECEIVED;
+        }
+    }
+
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.detail_item, parent, false);
-        return new MsgAdapter.MySentSmsViewHolder(view);
+        View view;
+        if (viewType == VIEW_MESSAGE_SENT) {
+            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.detail_item, parent, false);
+            return new MsgAdapter.MySentSmsViewHolder(view);
+        } else {
+            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.received_item, parent, false);
+            return new MsgAdapter.MyReceivedSmsViewHolder(view);
+        }
     }
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        ((MsgAdapter.MySentSmsViewHolder) holder).bind(msgList.get(position));
+        Msg msg = msgList.get(position);
+        switch (holder.getItemViewType()) {
+            case VIEW_MESSAGE_SENT:
+                ((MsgAdapter.MySentSmsViewHolder) holder).bind(msg);
+                break;
+            case VIEW_MESSAGE_RECEIVED:
+                ((MsgAdapter.MyReceivedSmsViewHolder) holder).bind(msg);
+                break;
+        }
     }
 
     @Override
@@ -125,7 +153,11 @@ public class MsgAdapter extends RecyclerView.Adapter {
 
         MyReceivedSmsViewHolder(View itemView) {
             super(itemView);
-            //sms = itemView.findViewById()
+            sms = itemView.findViewById(R.id.edit_txt_sms_received);
+        }
+
+        void bind(Msg msg2) {
+            this.sms.setText(msg2.sms1);
         }
     }
 }
