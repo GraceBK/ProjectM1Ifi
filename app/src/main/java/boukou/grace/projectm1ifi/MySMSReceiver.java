@@ -2,6 +2,8 @@ package boukou.grace.projectm1ifi;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -14,6 +16,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Telephony;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.telephony.SmsManager;
 import android.telephony.SmsMessage;
 import android.telephony.TelephonyManager;
@@ -166,11 +170,10 @@ public class MySMSReceiver extends BroadcastReceiver {
                 return null;
             }
         }.execute(msg_recu);
-        Log.e("SMS", msg_recu.toString());
+        /*Log.e("SMS", msg_recu.toString());
         deleteSMSFromSMSDB(context, smsMessage.getMessageBody(), smsMessage.getOriginatingAddress());
-        Log.e("GRACE", String.format("message supprime"));
+        Log.e("GRACE", String.format("message supprime"));*/
     }
-
 
     @SuppressLint("StaticFieldLeak")
     public void addSmsCleToDBApp(Context context, SmsMessage smsMessage) {
@@ -190,11 +193,10 @@ public class MySMSReceiver extends BroadcastReceiver {
                 return null;
             }
         }.execute(msg_recu);
-        Log.e("SMS", msg_recu.toString());
+        /*Log.e("SMS", msg_recu.toString());
         deleteSMSFromSMSDB(context, smsMessage.getMessageBody(), smsMessage.getOriginatingAddress());
-        Log.e("GRACE", String.format("message supprime"));
+        Log.e("GRACE", String.format("message supprime"));*/
     }
-
 
     public void decode(Context context, SmsMessage smsMessage) {
         db = AppDatabase.getDatabase(context);
@@ -203,19 +205,32 @@ public class MySMSReceiver extends BroadcastReceiver {
         String sms = db.msg2Dao().getKey_2(parts[0]);
         String key = db.msg2Dao().getSms_2(parts[0]);
 
+        // DONE notification
+        createNotification(context, "Coucou ", "Vous avez un nouveau message dechiffre");
+
+        /*
         Log.e("TTTTTT", sms+ " : " + key + " : "+Cesar.decrypter(Integer.parseInt(msg_recu.key), "Coucou"));
 
         if (sms != null || key != null) {
-         //   msg_recu.sms2 = "COUCOU";//Cesar.decrypter(Integer.parseInt(msg_recu.key), msg_recu.sms1);
-            //SmsManager smsKEY = SmsManager.getDefault();
-            //smsKEY.sendTextMessage(, null, "COUCOU " + Cesar.decrypter(Integer.parseInt(msg_recu.key), msg_recu.sms1), null, null);
-
             Log.e("EEEE", sms+ " : " + key + " : "+Cesar.decrypter(Integer.parseInt(msg_recu.key), "Coucou"));
-
-            //insertSMSInSMSDB(context, "GRACE___"/* + Cesar.decrypter(Integer.parseInt(msg_recu.key), msg_recu.sms1)*/, msg_recu.phoneReceiver);
-
             Log.e("SMS", msg_recu.toString());
-        }
+        }*/
+    }
+
+    public void createNotification(Context context, String msgAlert, String msgText) {
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, new Intent(context, MainActivity.class), 0);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
+                .setSmallIcon(R.drawable.ic_stat_name)
+                .setContentTitle("Projet M1 Info")
+                .setTicker(msgAlert)
+                .setContentText(msgText);
+        builder.setContentIntent(pendingIntent);
+        builder.setDefaults(NotificationCompat.DEFAULT_SOUND);
+        builder.setAutoCancel(true);
+
+        NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        Objects.requireNonNull(manager).notify(1, builder.build());
     }
 
     public void insertSMSInSMSDB(Context context, String message, String number) {

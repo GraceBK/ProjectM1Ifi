@@ -78,6 +78,12 @@ public class MsgAdapter extends RecyclerView.Adapter {
             if (this.status_sms.getText() == "") {
                 this.status_sms.setText("En attente de l'accuse");
             }
+
+            if (this.status_sms.getText() == "En attente de l'accuse") {
+                re_send_sms.setVisibility(View.GONE);
+            } else {
+                re_send_sms.setVisibility(View.VISIBLE);
+            }
             //this.status_key.setText(msg2.status_key);
 
             lire_sms_ok.setOnClickListener(new View.OnClickListener() {
@@ -110,6 +116,16 @@ public class MsgAdapter extends RecyclerView.Adapter {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    class MyReceivedSmsViewHolder extends RecyclerView.ViewHolder {
+
+        TextView sms;
+
+        MyReceivedSmsViewHolder(View itemView) {
+            super(itemView);
+            //sms = itemView.findViewById()
         }
     }
 }
