@@ -36,8 +36,10 @@ public class MsgAdapter extends RecyclerView.Adapter {
         Msg msg = msgList.get(position);
         if (Objects.equals(msg.phoneSender, "sender")) {
             return VIEW_MESSAGE_SENT;
-        } else {
+        } else if (Objects.equals(msg.phoneSender, "receiver")) {
             return VIEW_MESSAGE_RECEIVED;
+        } else {
+            return 3;
         }
     }
 
@@ -48,10 +50,11 @@ public class MsgAdapter extends RecyclerView.Adapter {
         if (viewType == VIEW_MESSAGE_SENT) {
             view = LayoutInflater.from(parent.getContext()).inflate(R.layout.detail_item, parent, false);
             return new MsgAdapter.MySentSmsViewHolder(view);
-        } else {
+        } else if (viewType == VIEW_MESSAGE_RECEIVED) {
             view = LayoutInflater.from(parent.getContext()).inflate(R.layout.received_item, parent, false);
             return new MsgAdapter.MyReceivedSmsViewHolder(view);
         }
+        return null;
     }
 
     @Override

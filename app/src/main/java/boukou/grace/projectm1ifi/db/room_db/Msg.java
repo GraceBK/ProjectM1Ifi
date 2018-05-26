@@ -37,6 +37,9 @@ public class Msg {
     @ColumnInfo(name = "sms_crypt")
     public String sms1;
 
+    @ColumnInfo(name = "sms_decrypt")
+    public String sms2;
+
     @ColumnInfo(name = "cle")
     public String key;
 

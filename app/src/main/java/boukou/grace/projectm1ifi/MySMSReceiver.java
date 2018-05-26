@@ -1,36 +1,28 @@
 package boukou.grace.projectm1ifi;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
-import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.Telephony;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
 import android.telephony.SmsManager;
 import android.telephony.SmsMessage;
-import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.Toast;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 import boukou.grace.projectm1ifi.db.room_db.AppDatabase;
 import boukou.grace.projectm1ifi.db.room_db.Msg;
-import boukou.grace.projectm1ifi.db.room_db.Msg2;
+import boukou.grace.projectm1ifi.db.room_db.RContact;
 import boukou.grace.projectm1ifi.java_files.cesar.Cesar;
 
 
@@ -61,8 +53,10 @@ public class MySMSReceiver extends BroadcastReceiver {
 
     private AppDatabase db;
 
+    List<RContact> contacts;
+
     Msg msg = new Msg();
-    Msg2 msg_recu = new Msg2();
+    //Msg2 msg_recu = new Msg2();
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -156,6 +150,21 @@ public class MySMSReceiver extends BroadcastReceiver {
 
         String parts[] = smsMessage.getMessageBody().substring(5).split(" ", 2);
 
+        msg.nameReceiver = parts[0] + "r";
+        msg.phoneReceiver = smsMessage.getOriginatingAddress();
+        msg.sms1 = parts[1];    // sms_crypt
+        msg.phoneSender = "receiver";
+
+        new AsyncTask<Msg, Void, Void>() {
+            @Override
+            protected Void doInBackground(Msg... msgs) {
+                for (Msg msg1 : msgs) {
+                    db.msgDao().insertSms(msg1);
+                }
+                return null;
+            }
+        }.execute(msg);
+        /*
         msg_recu.nameReceiver = parts[0];
         msg_recu.phoneReceiver = "receiver";
         msg_recu.sms1 = parts[1];    // sms_crypt
@@ -170,6 +179,8 @@ public class MySMSReceiver extends BroadcastReceiver {
                 return null;
             }
         }.execute(msg_recu);
+         */
+
         /*Log.e("SMS", msg_recu.toString());
         deleteSMSFromSMSDB(context, smsMessage.getMessageBody(), smsMessage.getOriginatingAddress());
         Log.e("GRACE", String.format("message supprime"));*/
@@ -181,6 +192,20 @@ public class MySMSReceiver extends BroadcastReceiver {
 
         String parts[] = smsMessage.getMessageBody().substring(5).split(" ", 2);
 
+        msg.phoneReceiver = smsMessage.getOriginatingAddress();
+        msg.key = parts[1];    // sms_crypt
+
+        new AsyncTask<Msg, Void, Void>() {
+            @Override
+            protected Void doInBackground(Msg... msgs) {
+                for (Msg msg1 : msgs) {
+                    db.msgDao().updateKeySms(parts[0] + "r", msg1.key);
+                }
+                return null;
+            }
+        }.execute(msg);
+
+        /*
         msg_recu.phoneReceiver = smsMessage.getOriginatingAddress();
         msg_recu.key = parts[1];    // sms_crypt
 
@@ -193,20 +218,35 @@ public class MySMSReceiver extends BroadcastReceiver {
                 return null;
             }
         }.execute(msg_recu);
+         */
+
         /*Log.e("SMS", msg_recu.toString());
         deleteSMSFromSMSDB(context, smsMessage.getMessageBody(), smsMessage.getOriginatingAddress());
         Log.e("GRACE", String.format("message supprime"));*/
     }
 
+    @SuppressLint("StaticFieldLeak")
     public void decode(Context context, SmsMessage smsMessage) {
         db = AppDatabase.getDatabase(context);
-        String parts[] = smsMessage.getMessageBody().substring(8).split(" ", 2);
+        String parts[] = smsMessage.getMessageBody().substring(5).split(" ", 2);
 
-        String sms = db.msg2Dao().getKey_2(parts[0]);
-        String key = db.msg2Dao().getSms_2(parts[0]);
+        String sms = db.msgDao().getSms(parts[0]);
+        String key = db.msgDao().getKey(parts[0]);
+
+        msg.sms2 = Cesar.decrypter(Integer.parseInt(key), sms);
+
+        new AsyncTask<Msg, Void, Void>() {
+            @Override
+            protected Void doInBackground(Msg... msgs) {
+                for (Msg msg1 : msgs) {
+                    db.msgDao().updateSmsDecrypt(parts[0] + "r", msg1.sms2);
+                }
+                return null;
+            }
+        }.execute(msg);
 
         // DONE notification
-        createNotification(context, "Coucou ", "Vous avez un nouveau message dechiffre");
+        createNotification(context, "Coucou ", /*"Vous avez un nouveau message dechiffre"*/Cesar.decrypter(Integer.parseInt(key), sms));
 
         /*
         Log.e("TTTTTT", sms+ " : " + key + " : "+Cesar.decrypter(Integer.parseInt(msg_recu.key), "Coucou"));
@@ -215,6 +255,12 @@ public class MySMSReceiver extends BroadcastReceiver {
             Log.e("EEEE", sms+ " : " + key + " : "+Cesar.decrypter(Integer.parseInt(msg_recu.key), "Coucou"));
             Log.e("SMS", msg_recu.toString());
         }*/
+    }
+
+    public void newComingSms(Context context) {
+        db = AppDatabase.getDatabase(context);
+        contacts = db.rContactDao().getAllRContacts();
+
     }
 
     public void createNotification(Context context, String msgAlert, String msgText) {
