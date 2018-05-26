@@ -19,7 +19,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -32,8 +31,6 @@ import boukou.grace.projectm1ifi.db.room_db.RContact;
 public class MainActivity extends AppCompatActivity {
 
     public static final int REQUEST_ID_MULTIPLE_PERMISSIONS = 1;
-
-    private static final String TAG = "MainActivity";
 
     private final int PICK_CONTACT_REQUEST = 1; // Le code de reponse
 
@@ -105,7 +102,6 @@ public class MainActivity extends AppCompatActivity {
     private void getContact(Intent data) {
         try {
             Uri contactUri = data.getData();
-            String[] projection = {ContactsContract.CommonDataKinds.Phone.NUMBER};
             @SuppressLint("Recycle") Cursor cursor = getContentResolver()
                     .query(Objects.requireNonNull(contactUri), null, null, null, null);
             Objects.requireNonNull(cursor).moveToFirst();
@@ -135,8 +131,6 @@ public class MainActivity extends AppCompatActivity {
             intent.putExtra("USERNAME", name);
             intent.putExtra("PHONE", number);
             startActivity(intent);
-
-            Log.e(TAG, name + " " + number);
         } catch (Exception e) {
             e.printStackTrace();
         }

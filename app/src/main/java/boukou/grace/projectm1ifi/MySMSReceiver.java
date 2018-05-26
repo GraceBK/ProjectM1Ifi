@@ -4,17 +4,13 @@ import android.annotation.SuppressLint;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.telephony.SmsManager;
 import android.telephony.SmsMessage;
-import android.util.Log;
 import android.widget.Toast;
 
 import java.util.List;
@@ -28,39 +24,18 @@ import boukou.grace.projectm1ifi.java_files.cesar.Cesar;
 
 public class MySMSReceiver extends BroadcastReceiver {
 
-    private final String ACTION_RECEIVE_SMS = "android.provider.Telephony.SMS_RECEIVED";
-
     public static final String SMS_EXTRA_NAME = "pdus";
-    public static final String SMS_URI = "content://sms";
-
-    public static final String ADDRESS = "address";
-    public static final String PERSON = "person";
-    public static final String DATE = "date";
-    public static final String READ = "read";
-    public static final String STATUS = "status";
-    public static final String TYPE = "type";
-    public static final String BODY = "body";
-    public static final String SEEN = "seen";
-
-    public static final int MESSAGE_TYPE_INBOX = 1;
-    public static final int MESSAGE_TYPE_SENT = 2;
-
-    public static final int MESSAGE_IS_NOT_READ = 0;
-    public static final int MESSAGE_IS_READ = 1;
-
-    public static final int MESSAGE_IS_NOT_SEEN = 0;
-    public static final int MESSAGE_IS_SEEN = 1;
 
     private AppDatabase db;
 
-    List<RContact> contacts;
+    //List<RContact> contacts;
 
     Msg msg = new Msg();
     //Msg2 msg_recu = new Msg2();
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        // TODO: This method is called when the BroadcastReceiver is receiving
+        String ACTION_RECEIVE_SMS = "android.provider.Telephony.SMS_RECEIVED";
         if (Objects.equals(intent.getAction(), ACTION_RECEIVE_SMS)) {
             Bundle bundle = intent.getExtras();
 
@@ -74,7 +49,7 @@ public class MySMSReceiver extends BroadcastReceiver {
                 if (messages[0].getMessageBody().charAt(0) == 'i') {
                     final String messageBody = messages[0].getMessageBody();
                     final String phoneNumber = messages[0].getDisplayOriginatingAddress();
-                    final String uid = messages[0].getStatus() + "";
+                    //final String uid = messages[0].getStatus() + "";
 
                     //Toast.makeText(context, "Expediteur : " + phoneNumber, Toast.LENGTH_LONG).show();
 
@@ -110,7 +85,7 @@ public class MySMSReceiver extends BroadcastReceiver {
     }
 
     @SuppressLint("StaticFieldLeak")
-    public void saveAccuse(Context context, /*String phone, */SmsMessage smsMessage) {
+    public void saveAccuse(Context context, SmsMessage smsMessage) {
         db = AppDatabase.getDatabase(context);
 
         String parts[] = smsMessage.getMessageBody().split(" ", 2);
@@ -246,8 +221,8 @@ public class MySMSReceiver extends BroadcastReceiver {
         }.execute(msg);
 
         // DONE notification
-        createNotification(context, "Coucou ", /*"Vous avez un nouveau message dechiffre"*/Cesar.decrypter(Integer.parseInt(key), sms));
-
+        createNotification(context, "Coucou ", Cesar.decrypter(Integer.parseInt(key), sms));
+        /*"Vous avez un nouveau message dechiffre"*/
         /*
         Log.e("TTTTTT", sms+ " : " + key + " : "+Cesar.decrypter(Integer.parseInt(msg_recu.key), "Coucou"));
 
@@ -257,16 +232,16 @@ public class MySMSReceiver extends BroadcastReceiver {
         }*/
     }
 
-    public void newComingSms(Context context) {
+    /*public void newComingSms(Context context) {
         db = AppDatabase.getDatabase(context);
         contacts = db.rContactDao().getAllRContacts();
 
-    }
+    }*/
 
     public void createNotification(Context context, String msgAlert, String msgText) {
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, new Intent(context, MainActivity.class), 0);
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "grace_bk_id")
                 .setSmallIcon(R.drawable.ic_stat_name)
                 .setContentTitle("Projet M1 Info")
                 .setTicker(msgAlert)
@@ -279,58 +254,4 @@ public class MySMSReceiver extends BroadcastReceiver {
         Objects.requireNonNull(manager).notify(1, builder.build());
     }
 
-    public void insertSMSInSMSDB(Context context, String message, String number) {
-        try {
-            Uri uriSMS = Uri.parse("content://sms/");
-            ContentValues contentValues = new ContentValues();
-            contentValues.put("address", number);
-            contentValues.put("body", message);
-            contentValues.put("type", 1);   // 1 pour MESSAGE_TYPE_INBOX
-
-            context.getContentResolver().insert(Uri.parse("content://sms/inbox"), contentValues);
-        } catch (Exception e) {
-            Log.e("ERROR", "Ne peut pas supprimer le SMS: " + e.getMessage());
-        }
-    }
-
-    public void deleteSMSFromSMSDB(Context context, String message, String number) {
-        try {
-            //Log.i("INFO", "Suppression du SMS");
-            Uri uriSMS = Uri.parse("content://sms");
-            Cursor cursor = context.getContentResolver().query(uriSMS, new String[]{"_id", "thread_id", "address", "person", "date", "body"},
-                    null, null, null);
-
-            if (cursor != null && cursor.moveToFirst()) {
-                //do {
-                    long id = cursor.getLong(0);
-                    long threadId = cursor.getLong(1);
-                    String address = cursor.getString(2);
-                    String body = cursor.getString(5);
-
-                /*Cursor cursor2 = context.getContentResolver().query(Uri.parse("content://sms/"), new String[]{"_id", "thread_id", "address", "person", "date", "body"},
-                        null, null, null);*/
-
-                Log.i("INFO", ""+ id + " " + threadId + " " + address + " " + body + " ");
-
-                    /*if (message.equals(body) && message.contains("MY_APP_SMS ")) {
-                        Log.i("INFO", ""+ id + " " + threadId + " " + address + " " + body + " ");
-                        context.getContentResolver().delete(Uri.parse("content://sms/conversations/" + threadId), null, null);
-                        Log.i("INFO", "Suppression du SMS: " + id);
-                    }*/
-                context.getContentResolver().delete(Uri.parse("content://sms"), "thread_id=? and _id=?", new String[]{String.valueOf(threadId), String.valueOf(id)});
-
-                    String creator = cursor.getString(5); // Optionnel
-                    /*if (message.equals(body) && address.equals(number)) {
-                        Log.i("INFO", "Suppression du SMS: " + threadId);
-                        context.getContentResolver().delete(
-                                Uri.parse("content://sms/" + id), null, null
-                        );
-                    }*/
-                //} while (cursor.moveToNext());
-            }
-
-        } catch (Exception e) {
-            Log.e("ERROR", "Ne peut pas supprimer le SMS: " + e.getMessage());
-        }
-    }
 }
