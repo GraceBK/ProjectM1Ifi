@@ -6,7 +6,6 @@ import android.arch.lifecycle.LiveData;
 import android.support.annotation.NonNull;
 
 import java.util.List;
-import java.util.Objects;
 
 import boukou.grace.projectm1ifi.db.room_db.AppDatabase;
 import boukou.grace.projectm1ifi.db.room_db.Msg;
@@ -17,20 +16,13 @@ import boukou.grace.projectm1ifi.db.room_db.Msg;
  */
 public class MsgViewModel extends AndroidViewModel {
 
-    private AppDatabase db;
-
     private LiveData<List<Msg>> msgList;
 
     public MsgViewModel(@NonNull Application application) {
         super(application);
 
-        db = AppDatabase.getDatabase(this.getApplication());
+        AppDatabase db = AppDatabase.getDatabase(this.getApplication());
         msgList = db.msgDao().getAll();
-    }
-
-    public void update(List<Msg> msgs) {
-        Objects.requireNonNull(msgList.getValue()).clear();
-        msgList.getValue().addAll(msgs);
     }
 
     public LiveData<List<Msg>> getMsgList() {

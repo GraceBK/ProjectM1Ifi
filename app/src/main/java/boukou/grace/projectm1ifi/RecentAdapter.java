@@ -33,9 +33,7 @@ class RecentAdapter extends RecyclerView.Adapter<RecentAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        // TODO : cas si pas de nom
         holder.username.setText(recents.get(position).getUsername());
-        holder.status.setText(recents.get(position).getStatus());
     }
 
     @Override
@@ -51,12 +49,10 @@ class RecentAdapter extends RecyclerView.Adapter<RecentAdapter.ViewHolder> {
     class ViewHolder extends RecyclerView.ViewHolder {
 
         TextView username;
-        TextView status;
 
         ViewHolder(View itemView) {
             super(itemView);
             username = itemView.findViewById(R.id.username_or_phone_text_view);
-            status = itemView.findViewById(R.id.tv_sms_status);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -64,7 +60,6 @@ class RecentAdapter extends RecyclerView.Adapter<RecentAdapter.ViewHolder> {
                     final Intent intent = new Intent(v.getContext(), DetailActivity.class);
                     intent.putExtra("USERNAME", recents.get(getLayoutPosition()).getUsername());
                     intent.putExtra("PHONE", recents.get(getLayoutPosition()).getPhone());
-                    intent.putExtra("STATUS", recents.get(getLayoutPosition()).getStatus());
                     v.getContext().startActivity(intent);
                 }
             });

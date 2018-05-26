@@ -17,6 +17,9 @@ public interface MsgDao {
     @Query("SELECT * FROM Msg WHERE numero_receiver = :phone")
     List<Msg> getAllMsgByNumber(String phone);
 
+    @Query("SELECT * FROM Msg WHERE numero_sender = 'receiver'")
+    List<Msg> getAllMsgReceive();
+
     @Query("SELECT cle FROM Msg WHERE name_receiver = :id_sms")
     String getKey(String id_sms);
 

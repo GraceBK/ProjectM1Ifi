@@ -14,12 +14,10 @@ import android.telephony.SmsMessage;
 import android.util.Log;
 import android.widget.Toast;
 
-import java.util.List;
 import java.util.Objects;
 
 import boukou.grace.projectm1ifi.db.room_db.AppDatabase;
 import boukou.grace.projectm1ifi.db.room_db.Msg;
-import boukou.grace.projectm1ifi.db.room_db.RContact;
 import boukou.grace.projectm1ifi.java_files.cesar.Cesar;
 
 
@@ -29,10 +27,7 @@ public class MySMSReceiver extends BroadcastReceiver {
 
     private AppDatabase db;
 
-    List<RContact> contacts;
-
     Msg msg = new Msg();
-    //Msg2 msg_recu = new Msg2();
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -47,12 +42,9 @@ public class MySMSReceiver extends BroadcastReceiver {
                 for (int i = 0; i < pdus.length; i++) {
                     messages[i] = SmsMessage.createFromPdu((byte[]) pdus[i]);
                 }
-               // if (messages[0].getMessageBody().charAt(0) == 'i') {
+                //if (messages[0].getMessageBody().charAt(0) == 'i') {
                     final String messageBody = messages[0].getMessageBody();
                     final String phoneNumber = messages[0].getDisplayOriginatingAddress();
-                    //final String uid = messages[0].getStatus() + "";
-
-                    //Toast.makeText(context, "Expediteur : " + phoneNumber, Toast.LENGTH_LONG).show();
 
                     if (messageBody.contains("iSMS ")) {
                         Toast.makeText(context, "Vous avez recu un message crypté", Toast.LENGTH_LONG).show();
@@ -69,7 +61,7 @@ public class MySMSReceiver extends BroadcastReceiver {
                         addSmsCleToDBApp(context, messages[0]);
                         decode(context, messages[0]);
                     }
-               // }
+                //}
             }
         }
     }
@@ -140,22 +132,6 @@ public class MySMSReceiver extends BroadcastReceiver {
                 return null;
             }
         }.execute(msg);
-        /*
-        msg_recu.nameReceiver = parts[0];
-        msg_recu.phoneReceiver = "receiver";
-        msg_recu.sms1 = parts[1];    // sms_crypt
-        msg_recu.phoneSender = smsMessage.getOriginatingAddress();
-
-        new AsyncTask<Msg2, Void, Void>() {
-            @Override
-            protected Void doInBackground(Msg2... msgs) {
-                for (Msg2 msg1 : msgs) {
-                    db.msg2Dao().insertSms_2(msg1);
-                }
-                return null;
-            }
-        }.execute(msg_recu);
-         */
     }
 
     @SuppressLint("StaticFieldLeak")
@@ -176,21 +152,6 @@ public class MySMSReceiver extends BroadcastReceiver {
                 return null;
             }
         }.execute(msg);
-
-        /*
-        msg_recu.phoneReceiver = smsMessage.getOriginatingAddress();
-        msg_recu.key = parts[1];    // sms_crypt
-
-        new AsyncTask<Msg2, Void, Void>() {
-            @Override
-            protected Void doInBackground(Msg2... msgs) {
-                for (Msg2 msg1 : msgs) {
-                    db.msg2Dao().updateKeySms_22(parts[0], msg1.key);
-                }
-                return null;
-            }
-        }.execute(msg_recu);
-         */
     }
 
     @SuppressLint("StaticFieldLeak")
@@ -199,7 +160,7 @@ public class MySMSReceiver extends BroadcastReceiver {
         String parts[] = smsMessage.getMessageBody().substring(5).split(" ", 2);
 
         String sms = db.msgDao().getSms(parts[0] + "r");
-        String key = parts[1]/*db.msgDao().getKey(parts[0] + "r")*/;
+        String key = parts[1];
 
         Log.e("-------", "cle = "+key+ " SMS = "+sms + " part "+ parts[0]);
 
@@ -217,14 +178,6 @@ public class MySMSReceiver extends BroadcastReceiver {
 
         // DONE notification
         createNotification(context, "Nouveau SMS dechiffre", Cesar.decrypter(Integer.parseInt(key), sms));
-        /*"Cesar.decrypter(Integer.parseInt(key), sms)"*/
-        /*
-        Log.e("TTTTTT", sms+ " : " + key + " : "+Cesar.decrypter(Integer.parseInt(msg_recu.key), "Coucou"));
-
-        if (sms != null || key != null) {
-            Log.e("EEEE", sms+ " : " + key + " : "+Cesar.decrypter(Integer.parseInt(msg_recu.key), "Coucou"));
-            Log.e("SMS", msg_recu.toString());
-        }*/
     }
 
     /*public void newComingSms(Context context) {

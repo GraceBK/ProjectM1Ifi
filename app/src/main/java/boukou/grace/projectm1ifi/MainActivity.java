@@ -75,6 +75,15 @@ public class MainActivity extends AppCompatActivity {
                 pickContact();
             }
         });
+
+        FloatingActionButton fab_receive = findViewById(R.id.fab_receive);
+        fab_receive.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, ReceiveSMSActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     /**

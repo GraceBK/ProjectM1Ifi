@@ -2,6 +2,7 @@ package boukou.grace.projectm1ifi.db.room_db;
 
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 
 /**
@@ -20,7 +21,7 @@ import android.arch.persistence.room.PrimaryKey;
  * sms_key : la cle de chiffrement
  *
  */
-@Entity
+@Entity(indices = {@Index(value = "name_receiver", unique = true)})
 public class Msg {
     @PrimaryKey(autoGenerate = true)
     public int uid;
@@ -45,9 +46,6 @@ public class Msg {
 
     @ColumnInfo(name = "status_sms")
     public String status_sms;
-
-    /*@ColumnInfo(name = "status_key")
-    public String status_key;*/
 
     @Override
     public String toString() {

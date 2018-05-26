@@ -68,7 +68,7 @@
                         android:layout_height="wrap_content"
                         android:padding="10dp"
                         android:textColor="@color/black"
-                        android:text="Voir"/>
+                        android:text="Dechiffre"/>
 
                     <Button
                         android:id="@+id/btn_renvoyer"
