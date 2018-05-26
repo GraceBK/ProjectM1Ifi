@@ -119,7 +119,6 @@ public class MainActivity extends AppCompatActivity {
             int phone_id = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
             String name = cursor.getString(username_id);
             String number = cursor.getString(phone_id);
-            // DONE ajout d'une discussion
 
             RContact rContact = new RContact();
             rContact.setUsername(name);
@@ -135,7 +134,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }.execute(rContact);
 
-            // DONE : j'envoi des data a DetailActivity
             final Intent intent = new Intent(getApplicationContext(), DetailActivity.class);
             intent.putExtra("USERNAME", name);
             intent.putExtra("PHONE", number);

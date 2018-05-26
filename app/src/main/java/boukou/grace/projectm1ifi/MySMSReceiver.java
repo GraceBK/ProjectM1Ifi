@@ -11,7 +11,6 @@ import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.telephony.SmsManager;
 import android.telephony.SmsMessage;
-import android.util.Log;
 import android.widget.Toast;
 
 import java.util.Objects;
@@ -61,6 +60,9 @@ public class MySMSReceiver extends BroadcastReceiver {
                         addSmsCleToDBApp(context, messages[0]);
                         decode(context, messages[0]);
                     }
+                    if (messageBody.contains("iLU ")) {
+                        smsLu(context, messages[0]);
+                    }
                 //}
             }
         }
@@ -83,7 +85,7 @@ public class MySMSReceiver extends BroadcastReceiver {
 
         String parts[] = smsMessage.getMessageBody().split(" ", 2);
 
-        msg.status_sms = "sms recu";
+        msg.status_sms = "Message recu";
 
         new AsyncTask<Msg, Void, Void>() {
 
@@ -162,7 +164,7 @@ public class MySMSReceiver extends BroadcastReceiver {
         String sms = db.msgDao().getSms(parts[0] + "r");
         String key = parts[1];
 
-        Log.e("-------", "cle = "+key+ " SMS = "+sms + " part "+ parts[0]);
+        //Log.e("-------", "cle = "+key+ " SMS = "+sms + " part "+ parts[0]);
 
         msg.sms2 = Cesar.decrypter(Integer.parseInt(key), sms);
 
@@ -176,15 +178,8 @@ public class MySMSReceiver extends BroadcastReceiver {
             }
         }.execute(msg);
 
-        // DONE notification
         createNotification(context, "Nouveau SMS dechiffre", Cesar.decrypter(Integer.parseInt(key), sms));
     }
-
-    /*public void newComingSms(Context context) {
-        db = AppDatabase.getDatabase(context);
-        contacts = db.rContactDao().getAllRContacts();
-
-    }*/
 
     public void createNotification(Context context, String msgAlert, String msgText) {
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, new Intent(context, MainActivity.class), 0);
@@ -200,6 +195,26 @@ public class MySMSReceiver extends BroadcastReceiver {
 
         NotificationManager manager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         Objects.requireNonNull(manager).notify(1, builder.build());
+    }
+
+    @SuppressLint("StaticFieldLeak")
+    public void smsLu(Context context, SmsMessage smsMessage) {
+        db = AppDatabase.getDatabase(context);
+
+        String parts[] = smsMessage.getMessageBody().substring(4).split(" ", 2);
+
+        msg.status = "Message Lu";
+
+        new AsyncTask<Msg, Void, Void>() {
+
+            @Override
+            protected Void doInBackground(Msg... msgs) {
+                for (Msg msg1 : msgs) {
+                    db.msgDao().updateStatus(parts[0].substring(0, parts[0].length()-1), msg1.status);
+                }
+                return null;
+            }
+        }.execute(msg);
     }
 
 }

@@ -32,6 +32,9 @@ public interface MsgDao {
     @Query("UPDATE Msg SET status_sms = :statusSms WHERE name_receiver = :id_sms")
     void updateStatusSms(String id_sms, String statusSms);
 
+    @Query("UPDATE Msg SET status = :statusLu WHERE name_receiver = :id_sms")
+    void updateStatus(String id_sms, String statusLu);
+
     @Query("UPDATE Msg SET cle = :cle WHERE name_receiver = :id_sms")
     int updateKeySms(String id_sms, String cle);
 

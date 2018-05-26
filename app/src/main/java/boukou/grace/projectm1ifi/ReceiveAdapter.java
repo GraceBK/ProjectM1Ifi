@@ -3,6 +3,8 @@ package boukou.grace.projectm1ifi;
 import android.annotation.SuppressLint;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.telephony.SmsManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -75,6 +77,7 @@ public class ReceiveAdapter extends RecyclerView.Adapter {
                     if (sms.getVisibility() == View.VISIBLE) {
                         sms.setVisibility(View.GONE);
                         sms_decrypt.setVisibility(View.VISIBLE);
+                        sendAccuseLecture(msg2.phoneReceiver, msg2.nameReceiver);
                         lire_sms_ok.setText("Chiffre");
                     } else {
                         sms.setVisibility(View.VISIBLE);
@@ -83,6 +86,15 @@ public class ReceiveAdapter extends RecyclerView.Adapter {
                     }
                 }
             });
+        }
+
+        void sendAccuseLecture(String phone, String id_sms_send) {
+            try {
+                SmsManager smsManager = SmsManager.getDefault();
+                smsManager.sendTextMessage(phone, null, "iLU " + id_sms_send, null, null/*sentPendingIntent, deliveredPendingIntent*/);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 

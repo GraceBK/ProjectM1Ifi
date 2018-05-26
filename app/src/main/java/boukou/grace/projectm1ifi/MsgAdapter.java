@@ -56,7 +56,7 @@ public class MsgAdapter extends RecyclerView.Adapter {
         TextView sms;
         TextView sms_decrypt;
         TextView status_sms;
-        TextView status_key;
+        TextView status;
         TextView time;
         Button lire_sms_ok;
         Button re_send_sms;
@@ -66,7 +66,7 @@ public class MsgAdapter extends RecyclerView.Adapter {
             sms = itemView.findViewById(R.id.edit_txt_sms_send);
             sms_decrypt = itemView.findViewById(R.id.edit_txt_sms_send_decrypt);
             status_sms = itemView.findViewById(R.id.tv_sms_status);
-            status_key = itemView.findViewById(R.id.tv_key_status);
+            status = itemView.findViewById(R.id.tv_status);
             lire_sms_ok = itemView.findViewById(R.id.btn_see);
             re_send_sms = itemView.findViewById(R.id.btn_renvoyer);
         }
@@ -76,6 +76,7 @@ public class MsgAdapter extends RecyclerView.Adapter {
             this.sms.setText(msg2.sms1);
             this.sms_decrypt.setText(Cesar.decrypter(Integer.parseInt(msg2.key), msg2.sms1));
             this.status_sms.setText(msg2.status_sms);
+            this.status.setText(msg2.status);
 
             if (this.status_sms.getText() == "") {
                 this.status_sms.setText("En attente de l'accuse");

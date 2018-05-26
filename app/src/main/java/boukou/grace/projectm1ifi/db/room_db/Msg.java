@@ -47,6 +47,9 @@ public class Msg {
     @ColumnInfo(name = "status_sms")
     public String status_sms;
 
+    @ColumnInfo(name = "status")
+    public String status;
+
     @Override
     public String toString() {
         String res;

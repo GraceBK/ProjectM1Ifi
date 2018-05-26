@@ -99,7 +99,7 @@
                         android:text="Status du message"/>
 
                     <TextView
-                        android:id="@+id/tv_key_status"
+                        android:id="@+id/tv_status"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
