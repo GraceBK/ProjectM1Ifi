@@ -20,7 +20,7 @@ class RecentAdapter extends RecyclerView.Adapter<RecentAdapter.ViewHolder> {
 
     private List<RContact> recents;
 
-    public RecentAdapter(List<RContact> recentList) {
+    RecentAdapter(List<RContact> recentList) {
         this.recents = recentList;
     }
 

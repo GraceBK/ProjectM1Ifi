@@ -19,6 +19,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -68,22 +70,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                pickContact();
-            }
-        });
-
-        FloatingActionButton fab_receive = findViewById(R.id.fab_receive);
-        fab_receive.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, ReceiveSMSActivity.class);
-                startActivity(intent);
-            }
-        });
     }
 
     /**
@@ -140,6 +126,29 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        switch (id) {
+            case R.id.action_inbox:
+                Intent intent = new Intent(MainActivity.this, ReceiveSMSActivity.class);
+                startActivity(intent);
+                return true;
+            case R.id.action_contact:
+                pickContact();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 

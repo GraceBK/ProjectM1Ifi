@@ -182,7 +182,7 @@ public class MySMSReceiver extends BroadcastReceiver {
     }
 
     public void createNotification(Context context, String msgAlert, String msgText) {
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, new Intent(context, MainActivity.class), 0);
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, new Intent(context, ReceiveSMSActivity.class), 0);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "grace_bk_id")
                 .setSmallIcon(R.drawable.ic_stat_name)

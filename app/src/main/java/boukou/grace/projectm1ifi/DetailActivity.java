@@ -71,9 +71,6 @@ public class DetailActivity extends AppCompatActivity {
 
         mySmsRecycler.setAdapter(adapter);
 
-
-
-
         viewModel = ViewModelProviders.of(this).get(MsgViewModel.class);
         viewModel.getMsgList().observe(this, msgs -> {
             new AsyncTask<Msg, Void, Void>() {

@@ -83,9 +83,9 @@ public class MsgAdapter extends RecyclerView.Adapter {
             }
 
             if (this.status_sms.getText() == "En attente de l'accuse") {
-                re_send_sms.setVisibility(View.GONE);
-            } else {
                 re_send_sms.setVisibility(View.VISIBLE);
+            } else {
+                re_send_sms.setVisibility(View.GONE);
             }
             //this.status_key.setText(msg2.status_key);
 
@@ -95,11 +95,11 @@ public class MsgAdapter extends RecyclerView.Adapter {
                     if (sms.getVisibility() == View.VISIBLE) {
                         sms.setVisibility(View.GONE);
                         sms_decrypt.setVisibility(View.VISIBLE);
-                        lire_sms_ok.setText("Chiffre");
+                        lire_sms_ok.setText(R.string.encrypted);
                     } else {
                         sms.setVisibility(View.VISIBLE);
                         sms_decrypt.setVisibility(View.GONE);
-                        lire_sms_ok.setText("Dechiffre");
+                        lire_sms_ok.setText(R.string.decrypted);
                     }
                 }
             });

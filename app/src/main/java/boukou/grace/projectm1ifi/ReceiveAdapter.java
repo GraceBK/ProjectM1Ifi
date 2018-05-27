@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.telephony.SmsManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -78,11 +77,11 @@ public class ReceiveAdapter extends RecyclerView.Adapter {
                         sms.setVisibility(View.GONE);
                         sms_decrypt.setVisibility(View.VISIBLE);
                         sendAccuseLecture(msg2.phoneReceiver, msg2.nameReceiver);
-                        lire_sms_ok.setText("Chiffre");
+                        lire_sms_ok.setText(R.string.encrypted);
                     } else {
                         sms.setVisibility(View.VISIBLE);
                         sms_decrypt.setVisibility(View.GONE);
-                        lire_sms_ok.setText("Dechiffre");
+                        lire_sms_ok.setText(R.string.decrypted);
                     }
                 }
             });
