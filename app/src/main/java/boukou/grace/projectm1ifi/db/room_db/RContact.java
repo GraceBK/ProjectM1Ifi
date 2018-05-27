@@ -9,8 +9,7 @@ import android.arch.persistence.room.PrimaryKey;
  * boukou.grace.projectm1ifi.db.room_db
  * Created by grace on 26/04/2018.
  */
-@Entity(indices = {@Index(value = "phone_number",
-        unique = true)})
+@Entity(indices = {@Index(value = "phone_number", unique = true)})
 public class RContact {
     @PrimaryKey(autoGenerate = true)
     public int uid;
@@ -20,13 +19,6 @@ public class RContact {
 
     @ColumnInfo(name = "phone_number")
     private String phone;
-
-    @ColumnInfo(name = "status_sms")
-    private String status;
-
-    public RContact() {
-        this.status = "Draft copy";
-    }
 
     public String getUsername() {
         return username;
@@ -42,13 +34,5 @@ public class RContact {
 
     public void setPhone(String phone) {
         this.phone = phone;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
     }
 }

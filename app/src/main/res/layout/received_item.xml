@@ -88,7 +88,7 @@
                             android:layout_height="wrap_content"
                             android:layout_weight=".4"
                             android:layout_margin="10dp"
-                            android:textColor="@color/black"
+                            android:textColor="@color/teal_500"
                             android:text="@string/decrypted"
                             style="@style/Widget.AppCompat.Button.Borderless"/>
 
