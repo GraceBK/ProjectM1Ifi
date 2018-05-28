@@ -19,7 +19,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -33,8 +34,6 @@ public class MainActivity extends AppCompatActivity {
 
     public static final int REQUEST_ID_MULTIPLE_PERMISSIONS = 1;
 
-    private static final String TAG = "MainActivity";
-
     private final int PICK_CONTACT_REQUEST = 1; // Le code de reponse
 
     RecyclerView recyclerView;
@@ -43,8 +42,6 @@ public class MainActivity extends AppCompatActivity {
     RecentViewModel viewModel;
 
     private AppDatabase db;
-    //private MyMessageViewModel viewModel;
-    //private MyMessageAdapter messageAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,15 +69,7 @@ public class MainActivity extends AppCompatActivity {
                 adapter.update(rContacts);
             }
         });
-        //viewModel.addSms(sms1.nameReceiver, sms1.phoneReceiver, sms1.sms1, sms1.key);
 
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                pickContact();
-            }
-        });
     }
 
     /**
@@ -108,7 +97,6 @@ public class MainActivity extends AppCompatActivity {
     private void getContact(Intent data) {
         try {
             Uri contactUri = data.getData();
-            String[] projection = {ContactsContract.CommonDataKinds.Phone.NUMBER};
             @SuppressLint("Recycle") Cursor cursor = getContentResolver()
                     .query(Objects.requireNonNull(contactUri), null, null, null, null);
             Objects.requireNonNull(cursor).moveToFirst();
@@ -117,7 +105,6 @@ public class MainActivity extends AppCompatActivity {
             int phone_id = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
             String name = cursor.getString(username_id);
             String number = cursor.getString(phone_id);
-            // DONE ajout d'une discussion
 
             RContact rContact = new RContact();
             rContact.setUsername(name);
@@ -133,21 +120,42 @@ public class MainActivity extends AppCompatActivity {
                 }
             }.execute(rContact);
 
-            // DONE : j'envoi des data a DetailActivity
             final Intent intent = new Intent(getApplicationContext(), DetailActivity.class);
             intent.putExtra("USERNAME", name);
             intent.putExtra("PHONE", number);
             startActivity(intent);
-
-            Log.e(TAG, name + " " + number);
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        switch (id) {
+            case R.id.action_inbox:
+                Intent intent = new Intent(MainActivity.this, ReceiveSMSActivity.class);
+                startActivity(intent);
+                return true;
+            case R.id.action_contact:
+                pickContact();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 
     private boolean checkAndRequestPermissions() {
         int permissionSendMessage = ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS);
         int permissionReadContact = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS);
+
 
         List<String> listPermissionsNeeded = new ArrayList<>();
 

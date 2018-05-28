@@ -5,7 +5,6 @@ import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
-import android.arch.persistence.room.Update;
 
 import java.util.List;
 
@@ -15,31 +14,33 @@ import java.util.List;
  */
 @Dao
 public interface MsgDao {
-    @Query("SELECT * FROM Msg")
-    List<Msg> getAllMsg();
-
     @Query("SELECT * FROM Msg WHERE numero_receiver = :phone")
     List<Msg> getAllMsgByNumber(String phone);
 
+    @Query("SELECT * FROM Msg WHERE numero_sender = 'receiver'")
+    List<Msg> getAllMsgReceive();
+
     @Query("SELECT cle FROM Msg WHERE name_receiver = :id_sms")
     String getKey(String id_sms);
+
+    @Query("SELECT sms_crypt FROM Msg WHERE name_receiver = :id_sms")
+    String getSms(String id_sms);
 
     @Query("SELECT * FROM Msg WHERE numero_sender = 'sender'")
     LiveData<List<Msg>> getAll();
 
     @Query("UPDATE Msg SET status_sms = :statusSms WHERE name_receiver = :id_sms")
-    int updateStatusSms(String id_sms, String statusSms);
+    void updateStatusSms(String id_sms, String statusSms);
+
+    @Query("UPDATE Msg SET status = :statusLu WHERE name_receiver = :id_sms")
+    void updateStatus(String id_sms, String statusLu);
 
     @Query("UPDATE Msg SET cle = :cle WHERE name_receiver = :id_sms")
     int updateKeySms(String id_sms, String cle);
 
-    //@Query("SELECT sms.name_receiver, sms.numero_receiver FROM sms WHERE uid IN (:smsIds)")
-    //List<Msg> getAllSmsByIds(int[] smsIds);
+    @Query("UPDATE Msg SET sms_decrypt = :decrypte WHERE name_receiver = :id_sms")
+    int updateSmsDecrypt(String id_sms, String decrypte);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertSms(Msg... msgs);
-
-    @Update
-    void updateStatusSms(Msg... msgs);
-
 }

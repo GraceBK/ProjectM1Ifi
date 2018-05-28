@@ -64,7 +64,7 @@
                 android:inputType="text|textMultiLine"
                 android:maxLines="4"
                 android:minLines="1"
-                android:background="#FFF"
+                android:background="@color/white"
                 android:hint="@string/edittext_type_message"/>
 
         </android.support.v7.widget.CardView>

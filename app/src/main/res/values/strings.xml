@@ -5,13 +5,20 @@
     <string name="action_settings">Settings</string>
     <string name="section_format">Hello World from section: %1$d</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_detail">DetailActivity</string>
+    <string name="title_activity_main">MainActivity</string>
 
     <string name="edittext_type_message">Type message</string>
     <string name="lorem_ipsum">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus. Suspendisse lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor.</string>
-    <string name="title_activity_main">MainActivity</string>
+    <string name="inbox">Inbox</string>
+    <string name="contacts">Contacts</string>
+    <string name="phone_number">0123456789</string>
+    <string name="decrypted">Dechiffre</string>
+    <string name="encrypted">Chiffre</string>
+    <string name="from">Sms du :</string>
+    <string name="status">Status de la cle</string>
+    <string name="status_sms">Status du message</string>
+    <string name="replay">Renvoyer</string>
 
     <string-array name="status_sms">
         <item>sms envoyé</item>

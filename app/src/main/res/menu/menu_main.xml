@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.boukou.grace.projectm1ifi.MainActivity">
+
+    <item
+        android:id="@+id/action_inbox"
+        android:icon="@drawable/ic_inbox"
+        android:title="@string/inbox"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/action_contact"
+        android:icon="@drawable/ic_add_contact"
+        android:title="@string/contacts"
+        app:showAsAction="always"/>
+
+</menu>

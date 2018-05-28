@@ -2,6 +2,7 @@ package boukou.grace.projectm1ifi.db.room_db;
 
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 
 /**
@@ -20,13 +21,13 @@ import android.arch.persistence.room.PrimaryKey;
  * sms_key : la cle de chiffrement
  *
  */
-@Entity
+@Entity(indices = {@Index(value = "name_receiver", unique = true)})
 public class Msg {
     @PrimaryKey(autoGenerate = true)
     public int uid;
 
     @ColumnInfo(name = "name_receiver")
-    public String nameReceiver;// TODO a envoyer avec le message ensuite le copier dans le message de la cle
+    public String nameReceiver;
 
     @ColumnInfo(name = "numero_receiver")
     public String phoneReceiver;
@@ -37,14 +38,17 @@ public class Msg {
     @ColumnInfo(name = "sms_crypt")
     public String sms1;
 
+    @ColumnInfo(name = "sms_decrypt")
+    public String sms2;
+
     @ColumnInfo(name = "cle")
     public String key;
 
     @ColumnInfo(name = "status_sms")
     public String status_sms;
 
-    @ColumnInfo(name = "status_key")
-    public String status_key;
+    @ColumnInfo(name = "status")
+    public String status;
 
     @Override
     public String toString() {

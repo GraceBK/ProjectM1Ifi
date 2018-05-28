@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -29,24 +30,59 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:baselineAligned="false">
 
-                <TextView
-                    android:id="@+id/edit_txt_sms_send"
+                <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:padding="10dp"
-                    android:textColor="@color/black"
-                    android:text="@string/lorem_ipsum"/>
+                    android:orientation="vertical">
 
-                <!--TextView
+                    <TextView
+                        android:id="@+id/edit_txt_sms_send"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="10dp"
+                        android:textColor="@color/black"
+                        android:text="@string/lorem_ipsum"/>
+
+                    <TextView
+                        android:id="@+id/edit_txt_sms_send_decrypt"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="10dp"
+                        android:visibility="gone"
+                        android:textColor="@color/black"
+                        android:text="@string/lorem_ipsum"/>
+
+                </LinearLayout>
+
+                <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight=".1"
-                    android:padding="10dp"
-                    android:textColor="@color/black"
-                    android:text="renvoyer cle"/-->
+                    android:layout_weight=".4"
+                    android:orientation="vertical">
+
+                    <Button
+                        android:id="@+id/btn_see"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="10dp"
+                        android:textColor="@color/teal_500"
+                        android:text="@string/decrypted"
+                        style="@style/Widget.AppCompat.Button.Borderless"/>
+
+                    <Button
+                        android:id="@+id/btn_renvoyer"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:padding="10dp"
+                        android:textColor="@color/teal_500"
+                        android:text="@string/replay"
+                        style="@style/Widget.AppCompat.Button.Borderless"/>
+
+                </LinearLayout>
 
             </LinearLayout>
 
@@ -64,15 +100,17 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:gravity="left"
-                        android:text="Status du message"/>
+                        android:text="@string/status_sms"
+                        tools:ignore="RtlHardcoded" />
 
                     <TextView
-                        android:id="@+id/tv_key_status"
+                        android:id="@+id/tv_status"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:gravity="right"
-                        android:text="Status de la cle"/>
+                        android:text="@string/status"
+                        tools:ignore="RtlHardcoded" />
 
                 </LinearLayout>
 
