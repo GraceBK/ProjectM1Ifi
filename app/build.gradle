@@ -4,11 +4,7 @@ android {
     compileSdkVersion 27
     defaultConfig {
         applicationId "boukou.grace.projectm1ifi"
-<<<<<<< HEAD
-        minSdkVersion 23
-=======
         minSdkVersion 22
->>>>>>> f885e26336bcc8c9f9ed854d268c8c441b68ae80
         targetSdkVersion 27
         versionCode 1
         versionName "1.0"
