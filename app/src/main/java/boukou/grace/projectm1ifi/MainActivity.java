@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
@@ -22,6 +23,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,6 +53,10 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         if (checkAndRequestPermissions()) {}
+
+        ActivityCompat.requestPermissions(MainActivity.this,
+                new String[]{Manifest.permission.RECEIVE_SMS,Manifest.permission.SEND_SMS,Manifest.permission.READ_SMS},
+                1);
 
         db = AppDatabase.getDatabase(getApplicationContext());
 
@@ -171,5 +177,36 @@ public class MainActivity extends AppCompatActivity {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case 1: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // La permission est garantie
+                } else {
+                    // La permission est refusee
+                }
+                return;
+            }
+            default:
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+    }
+
+    // TODO : faire appel a cette methode
+    public void requestSmsPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.SEND_SMS)) {
+                // Cela signifie que la permission a deja ete demande et l'utilisateur l'a refuse
+                // On peut aussi expliquer a l'utilisateur pourquoi
+                // cette permission est necessaire et la redemander
+            } else {
+                // Sinon demander la permission
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS}, 1);
+            }
+        }
     }
 }
